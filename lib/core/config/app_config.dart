@@ -3,7 +3,7 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
-  // Cambia esto a `true` cuando quieras probar contra tu Django local
+  // Cambiar a true cuando queramos probar con el local
   static const bool usarLocal = false;
 
   static String get envFileName => usarLocal ? '.env.dev' : '.env';
@@ -17,4 +17,7 @@ class AppConfig {
     }
     return url;
   }
+
+  static const String appName = 'Venta Motos App';
+  static const double taxRate = 0.15; // IVA Ecuador 15%
 }
