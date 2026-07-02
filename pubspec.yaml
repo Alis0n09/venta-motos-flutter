@@ -33,9 +33,7 @@ dev_dependencies:
   build_runner: ^2.4.13         # Motor que ejecuta los generadores (freezed, json_serializable, riverpod)
   freezed: ^2.5.7                # Genera el código de los modelos anotados con @freezed
   json_serializable: ^6.8.0     # Genera el fromJson/toJson real a partir de las anotaciones
-  riverpod_generator: ^2.4.3    # Genera el código de los providers anotados
-  custom_lint: ^0.7.0            # Motor para correr reglas de lint personalizadas
-  riverpod_lint: ^2.3.13         # Reglas de lint específicas para detectar errores de uso de Riverpod
+
 flutter:
   uses-material-design: true
   assets:
