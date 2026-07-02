@@ -63,7 +63,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
+
+                // ── Flecha para regresar ──────────────────
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => context.pop(),
+                      icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
 
                 // ── Header con logo ──────────────────────
                 Row(
@@ -200,7 +213,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 Center(
                   child: TextButton(
-                    onPressed: isLoading ? null : () => context.go('/registro'),
+                    onPressed: isLoading ? null : () => context.push('/registro'),
                     child: RichText(
                       text: const TextSpan(
                         style: TextStyle(color: AppColors.textSecondary),

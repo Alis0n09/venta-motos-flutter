@@ -28,7 +28,7 @@ class HomeScreen extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.login),
               tooltip: 'Iniciar sesión',
-              onPressed: () => context.go('/login'),
+              onPressed: () => context.push('/login'),
             ),
         ],
       ),
@@ -103,12 +103,12 @@ class HomeScreen extends ConsumerWidget {
               if (!authState.isAuthenticated) ...[
                 const SizedBox(height: 32),
                 ElevatedButton(
-                  onPressed: () => context.go('/login'),
+                  onPressed: () => context.push('/login'),
                   child: const Text('Iniciar sesión'),
                 ),
                 const SizedBox(height: 8),
                 TextButton(
-                  onPressed: () => context.go('/registro'),
+                  onPressed: () => context.push('/registro'),
                   child: const Text('Crear cuenta nueva'),
                 ),
               ],

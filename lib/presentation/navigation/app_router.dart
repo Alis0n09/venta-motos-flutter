@@ -34,7 +34,6 @@ class _PlaceholderScreen extends ConsumerWidget {
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await ref.read(authProvider.notifier).logout();
-              context.go('/login');
             },
           ),
         ],
@@ -59,16 +58,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         return location == '/splash' ? null : '/splash';
       }
 
+      // Rutas que SÍ necesitan sesión iniciada
+      const privateRoutes = ['/mis-compras', '/perfil', '/admin'];
+      final isPrivateRoute = privateRoutes.any((r) => location.startsWith(r));
       final isAuthRoute = location == '/login' || location == '/registro';
       final isSplash = location == '/splash';
 
-      if (isSplash) return isAuth ? '/' : '/login';
+      if (isSplash) return '/';
 
-      if (!isAuth && !isAuthRoute) return '/login';
+      // Ruta privada sin sesión → a login
+      if (isPrivateRoute && !isAuth) return '/login';
 
+      // Cliente intenta entrar a /admin → lo regresamos a Home
+      if (location.startsWith('/admin') && isAuth && !isStaff) return '/';
+
+      // Ya logueado pero viendo login/registro → no tiene caso, a Home
       if (isAuth && isAuthRoute) return '/';
-
-      if (isAuth && !isStaff && location.startsWith('/admin')) return '/';
 
       return null;
     },
@@ -103,7 +108,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, __) => const _PlaceholderScreen('Perfil'),
       ),
 
-      // ── Admin ────
+      // ── Admin ─────
       GoRoute(
         path: '/admin',
         builder: (_, __) => const _PlaceholderScreen('Panel administrativo'),
