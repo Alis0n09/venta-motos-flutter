@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'core/config/app_config.dart';
+import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +17,7 @@ class VentaMotosApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: AppConfig.appName,
+      theme: AppTheme.light,
       home: const Scaffold(
         body: Center(child: Text('Venta Motos App — en construcción')),
       ),
