@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/app_config.dart';
-import '../local/secure_storage.dart';
+import '../../local/secure_storage.dart';
 
 // ── Interceptor de autenticación ──────────────────────────────
 class _AuthInterceptor extends Interceptor {
