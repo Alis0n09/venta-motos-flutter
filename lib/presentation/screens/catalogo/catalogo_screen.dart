@@ -37,10 +37,21 @@ class _CatalogoScreenState extends ConsumerState<CatalogoScreen> {
           children: [
             TextField(
               controller: _searchController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: 'Buscá marca, modelo...',
-                prefixIcon: Icon(Icons.search, color: AppColors.accent),
+                prefixIcon: const Icon(Icons.search, color: AppColors.accent),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () {
+                          _searchController.clear();
+                          ref.read(catalogProvider.notifier).buscar('');
+                          setState(() {});
+                        },
+                      )
+                    : null,
               ),
+              onChanged: (_) => setState(() {}),
               onSubmitted: (value) => ref.read(catalogProvider.notifier).buscar(value),
             ),
             const SizedBox(height: 20),

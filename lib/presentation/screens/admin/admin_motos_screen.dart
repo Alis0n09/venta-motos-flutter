@@ -9,8 +9,23 @@ import '../../providers/auth_provider.dart';
 import '../../providers/catalog_provider.dart';
 import '../../providers/moto_admin_provider.dart';
 
-class AdminMotosScreen extends ConsumerWidget {
+class AdminMotosScreen extends ConsumerStatefulWidget {
   const AdminMotosScreen({super.key});
+
+  @override
+  ConsumerState<AdminMotosScreen> createState() => _AdminMotosScreenState();
+}
+
+class _AdminMotosScreenState extends ConsumerState<AdminMotosScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Aseguramos que el panel admin siempre muestre TODAS las motos,
+    // sin heredar un filtro que haya quedado activo en el Catálogo público.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(catalogProvider.notifier).resetFiltros();
+    });
+  }
 
   Future<void> _confirmarEliminar(BuildContext context, WidgetRef ref, int motoId, String nombre) async {
     final confirmar = await showDialog<bool>(
@@ -46,7 +61,7 @@ class AdminMotosScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final catalogState = ref.watch(catalogProvider);
     final authState = ref.watch(authProvider);
     final adminState = ref.watch(motoAdminProvider);
@@ -54,7 +69,7 @@ class AdminMotosScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Gestionar motos')),
       body: RefreshIndicator(
-        onRefresh: () => ref.read(catalogProvider.notifier).loadMotos(),
+        onRefresh: () => ref.read(catalogProvider.notifier).resetFiltros(),
         child: catalogState.isLoading
             ? const Center(child: CircularProgressIndicator())
             : catalogState.motos.isEmpty
@@ -77,7 +92,6 @@ class AdminMotosScreen extends ConsumerWidget {
                                 icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondary),
                                 onPressed: () => context.push('/admin/motos/editar', extra: moto),
                               ),
-                              // Solo admin puede eliminar (vendedor/bodeguero solo editan)
                               if (authState.isAdmin)
                                 IconButton(
                                   icon: const Icon(Icons.delete_outline, color: AppColors.error),

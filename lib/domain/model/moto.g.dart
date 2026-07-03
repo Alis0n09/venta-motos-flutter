@@ -19,6 +19,7 @@ _$MotoImpl _$$MotoImplFromJson(Map<String, dynamic> json) => _$MotoImpl(
       stock: (json['stock'] as num).toInt(),
       cilindraje: (json['cilindraje'] as num).toInt(),
       estado: json['estado'] as String,
+      imagenUrl: json['imagenUrl'] as String?,
     );
 
 Map<String, dynamic> _$$MotoImplToJson(_$MotoImpl instance) =>
@@ -35,4 +36,5 @@ Map<String, dynamic> _$$MotoImplToJson(_$MotoImpl instance) =>
       'stock': instance.stock,
       'cilindraje': instance.cilindraje,
       'estado': instance.estado,
+      'imagenUrl': instance.imagenUrl,
     };

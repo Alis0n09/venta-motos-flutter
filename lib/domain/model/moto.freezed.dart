@@ -32,6 +32,7 @@ mixin _$Moto {
   int get stock => throw _privateConstructorUsedError;
   int get cilindraje => throw _privateConstructorUsedError;
   String get estado => throw _privateConstructorUsedError;
+  String? get imagenUrl => throw _privateConstructorUsedError;
 
   /// Serializes this Moto to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -59,7 +60,8 @@ abstract class $MotoCopyWith<$Res> {
       double precio,
       int stock,
       int cilindraje,
-      String estado});
+      String estado,
+      String? imagenUrl});
 }
 
 /// @nodoc
@@ -89,6 +91,7 @@ class _$MotoCopyWithImpl<$Res, $Val extends Moto>
     Object? stock = null,
     Object? cilindraje = null,
     Object? estado = null,
+    Object? imagenUrl = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
@@ -139,6 +142,10 @@ class _$MotoCopyWithImpl<$Res, $Val extends Moto>
           ? _value.estado
           : estado // ignore: cast_nullable_to_non_nullable
               as String,
+      imagenUrl: freezed == imagenUrl
+          ? _value.imagenUrl
+          : imagenUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -162,7 +169,8 @@ abstract class _$$MotoImplCopyWith<$Res> implements $MotoCopyWith<$Res> {
       double precio,
       int stock,
       int cilindraje,
-      String estado});
+      String estado,
+      String? imagenUrl});
 }
 
 /// @nodoc
@@ -189,6 +197,7 @@ class __$$MotoImplCopyWithImpl<$Res>
     Object? stock = null,
     Object? cilindraje = null,
     Object? estado = null,
+    Object? imagenUrl = freezed,
   }) {
     return _then(_$MotoImpl(
       id: null == id
@@ -239,6 +248,10 @@ class __$$MotoImplCopyWithImpl<$Res>
           ? _value.estado
           : estado // ignore: cast_nullable_to_non_nullable
               as String,
+      imagenUrl: freezed == imagenUrl
+          ? _value.imagenUrl
+          : imagenUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -258,7 +271,8 @@ class _$MotoImpl implements _Moto {
       required this.precio,
       required this.stock,
       required this.cilindraje,
-      required this.estado});
+      required this.estado,
+      this.imagenUrl});
 
   factory _$MotoImpl.fromJson(Map<String, dynamic> json) =>
       _$$MotoImplFromJson(json);
@@ -287,10 +301,12 @@ class _$MotoImpl implements _Moto {
   final int cilindraje;
   @override
   final String estado;
+  @override
+  final String? imagenUrl;
 
   @override
   String toString() {
-    return 'Moto(id: $id, marca: $marca, marcaNombre: $marcaNombre, categoria: $categoria, categoriaNombre: $categoriaNombre, modelo: $modelo, anio: $anio, color: $color, precio: $precio, stock: $stock, cilindraje: $cilindraje, estado: $estado)';
+    return 'Moto(id: $id, marca: $marca, marcaNombre: $marcaNombre, categoria: $categoria, categoriaNombre: $categoriaNombre, modelo: $modelo, anio: $anio, color: $color, precio: $precio, stock: $stock, cilindraje: $cilindraje, estado: $estado, imagenUrl: $imagenUrl)';
   }
 
   @override
@@ -313,7 +329,9 @@ class _$MotoImpl implements _Moto {
             (identical(other.stock, stock) || other.stock == stock) &&
             (identical(other.cilindraje, cilindraje) ||
                 other.cilindraje == cilindraje) &&
-            (identical(other.estado, estado) || other.estado == estado));
+            (identical(other.estado, estado) || other.estado == estado) &&
+            (identical(other.imagenUrl, imagenUrl) ||
+                other.imagenUrl == imagenUrl));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -331,7 +349,8 @@ class _$MotoImpl implements _Moto {
       precio,
       stock,
       cilindraje,
-      estado);
+      estado,
+      imagenUrl);
 
   /// Create a copy of Moto
   /// with the given fields replaced by the non-null parameter values.
@@ -362,7 +381,8 @@ abstract class _Moto implements Moto {
       required final double precio,
       required final int stock,
       required final int cilindraje,
-      required final String estado}) = _$MotoImpl;
+      required final String estado,
+      final String? imagenUrl}) = _$MotoImpl;
 
   factory _Moto.fromJson(Map<String, dynamic> json) = _$MotoImpl.fromJson;
 
@@ -390,6 +410,8 @@ abstract class _Moto implements Moto {
   int get cilindraje;
   @override
   String get estado;
+  @override
+  String? get imagenUrl;
 
   /// Create a copy of Moto
   /// with the given fields replaced by the non-null parameter values.

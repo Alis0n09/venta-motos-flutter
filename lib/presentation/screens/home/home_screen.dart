@@ -10,36 +10,23 @@ import '../../providers/catalog_provider.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/moto_card.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends ConsumerState<HomeScreen> {
-  final _searchController = TextEditingController();
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    final catalogState = ref.watch(catalogProvider);
+    final recomendadasAsync = ref.watch(recomendadasProvider);
 
     return Scaffold(
       endDrawer: const AppDrawer(),
       body: SafeArea(
         child: RefreshIndicator(
-          onRefresh: () => ref.read(catalogProvider.notifier).loadMotos(),
+          onRefresh: () => ref.refresh(recomendadasProvider.future),
           child: ListView(
             padding: const EdgeInsets.all(20),
             children: [
-              // ── Header ──────────────────────────────
+
               Row(
                 children: [
                   Container(
@@ -74,27 +61,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
               const SizedBox(height: 24),
 
-              // ── Saludo + título ───────────────────────
               if (authState.isAuthenticated)
                 Text('Hola, ${authState.user?.username}', style: AppTextStyles.greeting),
               const SizedBox(height: 4),
               Text('Explorá el catálogo', style: AppTextStyles.heading1),
 
-              const SizedBox(height: 20),
-
-              // ── Buscador ──────────────────────────────
-              TextField(
-                controller: _searchController,
-                decoration: const InputDecoration(
-                  hintText: 'Buscá marca, modelo...',
-                  prefixIcon: Icon(Icons.search, color: AppColors.accent),
-                ),
-                onSubmitted: (value) => ref.read(catalogProvider.notifier).buscar(value),
-              ),
-
               const SizedBox(height: 24),
 
-              // ── Banner de oferta ──────────────────────
               ClipRect(
                 child: Stack(
                   clipBehavior: Clip.none,
@@ -144,7 +117,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
               const SizedBox(height: 28),
 
-              // ── Lista de motos ────────────────────────
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -157,31 +129,34 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               const SizedBox(height: 12),
 
-              if (catalogState.isLoading)
-                const Padding(
+              recomendadasAsync.when(
+                loading: () => const Padding(
                   padding: EdgeInsets.symmetric(vertical: 40),
                   child: Center(child: CircularProgressIndicator()),
-                )
-              else if (catalogState.error != null)
-                Padding(
+                ),
+                error: (error, _) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 40),
                   child: Center(
-                    child: Text(catalogState.error!, style: AppTextStyles.bodySecondary),
+                    child: Text('No se pudo cargar el catálogo', style: AppTextStyles.bodySecondary),
                   ),
-                )
-              else if (catalogState.motos.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 40),
-                  child: Center(child: Text('No hay motos disponibles', style: AppTextStyles.bodySecondary)),
-                )
-              else
-                for (final moto in catalogState.motos.take(5)) ...[
-                  MotoCard(
-                    moto: moto,
-                    onTap: () => context.push('/moto/${moto.id}'),
-                  ),
-                  const SizedBox(height: 10),
-                ],
+                ),
+                data: (motos) => motos.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40),
+                        child: Center(child: Text('No hay motos disponibles', style: AppTextStyles.bodySecondary)),
+                      )
+                    : Column(
+                        children: [
+                          for (final moto in motos.take(5)) ...[
+                            MotoCard(
+                              moto: moto,
+                              onTap: () => context.push('/moto/${moto.id}'),
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                        ],
+                      ),
+              ),
             ],
           ),
         ),
