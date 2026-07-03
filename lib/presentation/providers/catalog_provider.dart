@@ -7,11 +7,18 @@ import '../../data/remote/api/moto_remote_datasource.dart';
 import '../../domain/model/catalog_state.dart';
 import '../../domain/model/marca.dart';
 import '../../domain/model/moto.dart';
+import '../../data/remote/api/categoria_remote_datasource.dart';
+import '../../domain/model/categoria.dart';
 
-// Lista de marcas para los chips del catálogo (se carga una sola vez)
+
 final marcasProvider = FutureProvider<List<Marca>>((ref) async {
   final datasource = ref.watch(marcaDatasourceProvider);
   return datasource.getMarcas();
+});
+
+final categoriasProvider = FutureProvider<List<Categoria>>((ref) async {
+  final datasource = ref.watch(categoriaDatasourceProvider);
+  return datasource.getCategorias();
 });
 
 class CatalogNotifier extends StateNotifier<CatalogState> {

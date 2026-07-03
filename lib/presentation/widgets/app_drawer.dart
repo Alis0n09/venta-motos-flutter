@@ -96,7 +96,7 @@ class AppDrawer extends ConsumerWidget {
                 subtitle: Text('Rol: ${authState.rol}'),
                 onTap: () {
                   Navigator.of(context).pop();
-                  context.go('/admin');
+                  context.push('/admin');
                 },
               ),
 

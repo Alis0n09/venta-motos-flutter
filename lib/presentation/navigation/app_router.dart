@@ -4,14 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/model/auth_state.dart';
+import '../../domain/model/moto.dart';
 import '../providers/auth_provider.dart';
 import '../screens/auth/login_screen.dart';
-import '../screens/home/home_screen.dart';
 import '../screens/auth/register_screen.dart';
+import '../screens/home/home_screen.dart';
 import '../screens/catalogo/catalogo_screen.dart';
 import '../screens/catalogo/moto_detail_screen.dart';
+import '../screens/admin/admin_dashboard_screen.dart';
+import '../screens/admin/admin_motos_screen.dart';
+import '../screens/admin/moto_form_screen.dart';
 
-// Pantalla temporal mientras se restaura la sesión
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
 
@@ -21,7 +24,6 @@ class _SplashScreen extends StatelessWidget {
       );
 }
 
-// Placeholder genérico para pantallas que aún no existen
 class _PlaceholderScreen extends ConsumerWidget {
   final String title;
   const _PlaceholderScreen(this.title);
@@ -61,7 +63,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         return location == '/splash' ? null : '/splash';
       }
 
-      // Rutas que SÍ necesitan sesión iniciada
       const privateRoutes = ['/mis-compras', '/perfil', '/admin'];
       final isPrivateRoute = privateRoutes.any((r) => location.startsWith(r));
       final isAuthRoute = location == '/login' || location == '/registro';
@@ -69,13 +70,10 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (isSplash) return '/';
 
-      // Ruta privada sin sesión → a login
       if (isPrivateRoute && !isAuth) return '/login';
 
-      // Cliente intenta entrar a /admin → lo regresamos a Home
       if (location.startsWith('/admin') && isAuth && !isStaff) return '/';
 
-      // Ya logueado pero viendo login/registro → no tiene caso, a Home
       if (isAuth && isAuthRoute) return '/';
 
       return null;
@@ -85,22 +83,16 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // ── Auth ─────
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
-      GoRoute(
-        path: '/registro',
-        builder: (_, __) => const RegisterScreen(),
-      ),
+      GoRoute(path: '/registro', builder: (_, __) => const RegisterScreen()),
 
       // ── Público ─────
       GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
-      GoRoute(
-        path: '/catalogo',
-        builder: (_, __) => const CatalogoScreen(),
-      ),
+      GoRoute(path: '/catalogo', builder: (_, __) => const CatalogoScreen()),
       GoRoute(
         path: '/moto/:id',
         builder: (_, state) => MotoDetailScreen(
           motoId: int.parse(state.pathParameters['id']!),
-          ),
+        ),
       ),
 
       // ── Cliente privado ────
@@ -116,7 +108,27 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ── Admin ─────
       GoRoute(
         path: '/admin',
-        builder: (_, __) => const _PlaceholderScreen('Panel administrativo'),
+        builder: (_, __) => const AdminDashboardScreen(),
+      ),
+      GoRoute(
+        path: '/admin/motos',
+        builder: (_, __) => const AdminMotosScreen(),
+      ),
+      GoRoute(
+        path: '/admin/motos/crear',
+        builder: (_, __) => const MotoFormScreen(),
+      ),
+      GoRoute(
+        path: '/admin/motos/editar',
+        builder: (_, state) => MotoFormScreen(moto: state.extra as Moto),
+      ),
+      GoRoute(
+        path: '/admin/inventario',
+        builder: (_, __) => const _PlaceholderScreen('Inventario — módulo de Vicky S.'),
+      ),
+      GoRoute(
+        path: '/admin/ventas',
+        builder: (_, __) => const _PlaceholderScreen('Ventas — módulo de Vicky S.'),
       ),
     ],
   );

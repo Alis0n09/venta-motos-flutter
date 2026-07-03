@@ -11,6 +11,9 @@ abstract class MotoRemoteDatasource {
   });
 
   Future<Moto> getMoto(int id);
+  Future<Moto> createMoto(Map<String, dynamic> payload);
+  Future<Moto> updateMoto(int id, Map<String, dynamic> payload);
+  Future<void> deleteMoto(int id);
 }
 
 class MotoRemoteDatasourceImpl implements MotoRemoteDatasource {
@@ -40,6 +43,35 @@ class MotoRemoteDatasourceImpl implements MotoRemoteDatasource {
     try {
       final res = await _dio.get('/motos/$id/');
       return Moto.fromJson(res.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  @override
+  Future<Moto> createMoto(Map<String, dynamic> payload) async {
+    try {
+      final res = await _dio.post('/motos/', data: payload);
+      return Moto.fromJson(res.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  @override
+  Future<Moto> updateMoto(int id, Map<String, dynamic> payload) async {
+    try {
+      final res = await _dio.patch('/motos/$id/', data: payload);
+      return Moto.fromJson(res.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  @override
+  Future<void> deleteMoto(int id) async {
+    try {
+      await _dio.delete('/motos/$id/');
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }
