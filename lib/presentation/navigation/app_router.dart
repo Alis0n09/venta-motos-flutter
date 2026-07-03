@@ -7,6 +7,7 @@ import '../../domain/model/auth_state.dart';
 import '../providers/auth_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/home/home_screen.dart';
+import '../screens/auth/register_screen.dart';
 
 // Pantalla temporal mientras se restaura la sesión
 class _SplashScreen extends StatelessWidget {
@@ -84,7 +85,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(
         path: '/registro',
-        builder: (_, __) => const _PlaceholderScreen('Registro — pendiente'),
+        builder: (_, __) => const RegisterScreen(),
       ),
 
       // ── Público ─────
