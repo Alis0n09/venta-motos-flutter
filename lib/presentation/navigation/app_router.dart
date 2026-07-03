@@ -8,6 +8,8 @@ import '../providers/auth_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/auth/register_screen.dart';
+import '../screens/catalogo/catalogo_screen.dart';
+import '../screens/catalogo/moto_detail_screen.dart';
 
 // Pantalla temporal mientras se restaura la sesión
 class _SplashScreen extends StatelessWidget {
@@ -92,11 +94,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
       GoRoute(
         path: '/catalogo',
-        builder: (_, __) => const _PlaceholderScreen('Catálogo de motos'),
+        builder: (_, __) => const CatalogoScreen(),
       ),
       GoRoute(
         path: '/moto/:id',
-        builder: (_, __) => const _PlaceholderScreen('Detalle de moto'),
+        builder: (_, state) => MotoDetailScreen(
+          motoId: int.parse(state.pathParameters['id']!),
+          ),
       ),
 
       // ── Cliente privado ────

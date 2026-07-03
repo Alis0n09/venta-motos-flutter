@@ -30,7 +30,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
     final catalogState = ref.watch(catalogProvider);
-    final marcasAsync = ref.watch(marcasProvider);
 
     return Scaffold(
       endDrawer: const AppDrawer(),
@@ -93,36 +92,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 onSubmitted: (value) => ref.read(catalogProvider.notifier).buscar(value),
               ),
 
-              const SizedBox(height: 16),
-
-              // ── Chips de marca ────────────────────────
-              SizedBox(
-                height: 40,
-                child: marcasAsync.when(
-                  data: (marcas) => ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      _MarcaChip(
-                        label: 'Todas',
-                        selected: catalogState.marcaSeleccionada == null,
-                        onTap: () => ref.read(catalogProvider.notifier).seleccionarMarca(null),
-                      ),
-                      const SizedBox(width: 8),
-                      for (final marca in marcas) ...[
-                        _MarcaChip(
-                          label: marca.nombre,
-                          selected: catalogState.marcaSeleccionada == marca.id,
-                          onTap: () => ref.read(catalogProvider.notifier).seleccionarMarca(marca.id),
-                        ),
-                        const SizedBox(width: 8),
-                      ],
-                    ],
-                  ),
-                  loading: () => const Center(child: CircularProgressIndicator(strokeWidth: 2)),
-                  error: (_, __) => const Text('No se pudieron cargar las marcas', style: AppTextStyles.bodySecondary),
-                ),
-              ),
-
               const SizedBox(height: 24),
 
               // ── Banner de oferta ──────────────────────
@@ -179,7 +148,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Catálogo', style: AppTextStyles.heading2),
+                  Text('Recomendadas', style: AppTextStyles.heading2),
                   TextButton(
                     onPressed: () => context.push('/catalogo'),
                     child: const Text('Ver todas', style: TextStyle(color: AppColors.accent)),
@@ -242,30 +211,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           NavigationDestination(icon: Icon(Icons.favorite_border), label: 'Favoritos'),
           NavigationDestination(icon: Icon(Icons.person_outline), label: 'Perfil'),
         ],
-      ),
-    );
-  }
-}
-
-class _MarcaChip extends StatelessWidget {
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _MarcaChip({required this.label, required this.selected, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (_) => onTap(),
-      labelStyle: TextStyle(color: selected ? Colors.white : AppColors.textPrimary),
-      selectedColor: AppColors.primary,
-      backgroundColor: AppColors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: selected ? AppColors.primary : AppColors.border),
       ),
     );
   }
