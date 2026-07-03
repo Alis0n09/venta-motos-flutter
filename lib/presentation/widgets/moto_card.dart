@@ -24,14 +24,23 @@ class MotoCard extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: Row(
             children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: 64,
+                  height: 64,
+                  child: (moto.imagenUrl != null && moto.imagenUrl!.isNotEmpty)
+                      ? Image.network(
+                          moto.imagenUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _placeholderIcono(),
+                          loadingBuilder: (context, child, progress) {
+                            if (progress == null) return child;
+                            return _placeholderIcono();
+                          },
+                        )
+                      : _placeholderIcono(),
                 ),
-                child: const Icon(Icons.two_wheeler, color: AppColors.textSecondary),
               ),
               const SizedBox(width: 12),
 
@@ -63,6 +72,13 @@ class MotoCard extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _placeholderIcono() {
+    return Container(
+      color: AppColors.background,
+      child: const Icon(Icons.two_wheeler, color: AppColors.textSecondary),
     );
   }
 }

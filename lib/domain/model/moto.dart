@@ -18,6 +18,7 @@ class Moto with _$Moto {
     required int stock,
     required int cilindraje,
     required String estado,
+    String? imagenUrl,
   }) = _Moto;
 
   factory Moto.fromJson(Map<String, dynamic> json) => Moto(
@@ -33,5 +34,6 @@ class Moto with _$Moto {
         stock: json['stock'] as int,
         cilindraje: json['cilindraje'] as int,
         estado: json['estado'] as String,
+        imagenUrl: json['imagen_url'] as String?,
       );
 }

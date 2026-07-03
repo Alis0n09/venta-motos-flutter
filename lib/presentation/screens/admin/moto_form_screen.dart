@@ -25,11 +25,12 @@ class _MotoFormScreenState extends ConsumerState<MotoFormScreen> {
   late final TextEditingController _colorController;
   late final TextEditingController _precioController;
   late final TextEditingController _cilindrajeController;
+  late final TextEditingController _imagenUrlController;
 
   int? _marcaSeleccionada;
   int? _categoriaSeleccionada;
   String _estado = 'disponible';
-  String? _sucursalSeleccionada;
+  String? _sucursalSeleccionada; // decorativo por ahora
 
   bool get _esEdicion => widget.moto != null;
 
@@ -42,6 +43,7 @@ class _MotoFormScreenState extends ConsumerState<MotoFormScreen> {
     _colorController = TextEditingController(text: moto?.color ?? '');
     _precioController = TextEditingController(text: moto?.precio.toString() ?? '');
     _cilindrajeController = TextEditingController(text: moto?.cilindraje.toString() ?? '150');
+    _imagenUrlController = TextEditingController(text: moto?.imagenUrl ?? '');
     _marcaSeleccionada = moto?.marca;
     _categoriaSeleccionada = moto?.categoria;
     _estado = moto?.estado ?? 'disponible';
@@ -54,6 +56,7 @@ class _MotoFormScreenState extends ConsumerState<MotoFormScreen> {
     _colorController.dispose();
     _precioController.dispose();
     _cilindrajeController.dispose();
+    _imagenUrlController.dispose();
     super.dispose();
   }
 
@@ -75,6 +78,8 @@ class _MotoFormScreenState extends ConsumerState<MotoFormScreen> {
       'precio': double.parse(_precioController.text),
       'cilindraje': int.parse(_cilindrajeController.text),
       'estado': _estado,
+      if (_imagenUrlController.text.trim().isNotEmpty)
+        'imagen_url': _imagenUrlController.text.trim(),
     };
 
     final notifier = ref.read(motoAdminProvider.notifier);
@@ -161,27 +166,37 @@ class _MotoFormScreenState extends ConsumerState<MotoFormScreen> {
 
                 const SizedBox(height: 24),
 
-                Text('FOTOS', style: AppTextStyles.caption),
+                // ── Imagen ─────────────────────────────────
+                Text('URL DE LA IMAGEN', style: AppTextStyles.caption),
                 const SizedBox(height: 6),
-                SizedBox(
-                  height: 80,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: [
-                      const _FotoPlaceholder(label: 'FOTO 1'),
-                      const SizedBox(width: 10),
-                      const _FotoPlaceholder(label: 'FOTO 2'),
-                      const SizedBox(width: 10),
-                      _FotoAddButton(
-                        onTap: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Subida de fotos: pendiente de soporte en el backend')),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
+                TextFormField(
+                  controller: _imagenUrlController,
+                  enabled: !isLoading,
+                  decoration: const InputDecoration(hintText: 'https://...'),
+                  onChanged: (_) => setState(() {}),
                 ),
+                const SizedBox(height: 10),
+
+                if (_imagenUrlController.text.trim().isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      _imagenUrlController.text.trim(),
+                      height: 140,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        height: 140,
+                        color: AppColors.border.withValues(alpha: 0.3),
+                        child: const Center(
+                          child: Text(
+                            'No se pudo cargar esa URL',
+                            style: TextStyle(color: AppColors.textSecondary),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
 
                 const SizedBox(height: 20),
 
@@ -453,54 +468,6 @@ class _MotoFormScreenState extends ConsumerState<MotoFormScreen> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _FotoPlaceholder extends StatelessWidget {
-  final String label;
-  const _FotoPlaceholder({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppColors.border.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Center(
-        child: Text(label, style: AppTextStyles.caption.copyWith(fontSize: 9)),
-      ),
-    );
-  }
-}
-
-class _FotoAddButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const _FotoAddButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          border: Border.all(color: AppColors.border),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: const Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add, color: AppColors.accent),
-            SizedBox(height: 2),
-            Text('Añadir', style: TextStyle(color: AppColors.accent, fontSize: 11)),
-          ],
         ),
       ),
     );

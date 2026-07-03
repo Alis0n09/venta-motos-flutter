@@ -27,16 +27,29 @@ class MotoDetailScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: 220,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: AppColors.background,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Center(
-                  child: Icon(Icons.two_wheeler, size: 96, color: AppColors.textSecondary),
-                ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: (moto.imagenUrl != null && moto.imagenUrl!.isNotEmpty)
+                    ? Image.network(
+                        moto.imagenUrl!,
+                        height: 220,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          height: 220,
+                          color: AppColors.background,
+                          child: const Center(
+                            child: Icon(Icons.two_wheeler, size: 96, color: AppColors.textSecondary),
+                          ),
+                        ),
+                      )
+                    : Container(
+                        height: 220,
+                        color: AppColors.background,
+                        child: const Center(
+                          child: Icon(Icons.two_wheeler, size: 96, color: AppColors.textSecondary),
+                        ),
+                      ),
               ),
               const SizedBox(height: 20),
 

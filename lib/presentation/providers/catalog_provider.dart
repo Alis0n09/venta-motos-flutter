@@ -2,13 +2,13 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/error/api_exception.dart';
+import '../../data/remote/api/categoria_remote_datasource.dart';
 import '../../data/remote/api/marca_remote_datasource.dart';
 import '../../data/remote/api/moto_remote_datasource.dart';
 import '../../domain/model/catalog_state.dart';
+import '../../domain/model/categoria.dart';
 import '../../domain/model/marca.dart';
 import '../../domain/model/moto.dart';
-import '../../data/remote/api/categoria_remote_datasource.dart';
-import '../../domain/model/categoria.dart';
 
 
 final marcasProvider = FutureProvider<List<Marca>>((ref) async {
@@ -19,6 +19,11 @@ final marcasProvider = FutureProvider<List<Marca>>((ref) async {
 final categoriasProvider = FutureProvider<List<Categoria>>((ref) async {
   final datasource = ref.watch(categoriaDatasourceProvider);
   return datasource.getCategorias();
+});
+
+final recomendadasProvider = FutureProvider<List<Moto>>((ref) async {
+  final datasource = ref.watch(motoDatasourceProvider);
+  return datasource.getMotos();
 });
 
 class CatalogNotifier extends StateNotifier<CatalogState> {
@@ -55,6 +60,11 @@ class CatalogNotifier extends StateNotifier<CatalogState> {
   void buscar(String texto) {
     state = state.copyWith(search: texto);
     loadMotos();
+  }
+
+  Future<void> resetFiltros() {
+    state = state.copyWith(clearMarca: true, search: '');
+    return loadMotos();
   }
 }
 
