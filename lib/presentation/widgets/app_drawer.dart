@@ -100,6 +100,26 @@ class AppDrawer extends ConsumerWidget {
                 },
               ),
 
+            if (authState.isAdmin || authState.isBodeguero)
+              ListTile(
+                leading: const Icon(Icons.warehouse_outlined),
+                title: const Text('Inventario'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/inventario');
+                },
+              ),
+
+            if (authState.isStaff)
+              ListTile(
+                leading: const Icon(Icons.store_outlined),
+                title: const Text('Sucursales'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/sucursales');
+                },
+              ),
+
             const Spacer(),
             const Divider(height: 1),
 
