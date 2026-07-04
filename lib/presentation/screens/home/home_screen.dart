@@ -41,7 +41,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text('Venta de Motos', style: AppTextStyles.heading2),
+                  Text('Victal Speed', style: AppTextStyles.heading2),
                   const Spacer(),
                   Builder(
                     builder: (context) => GestureDetector(

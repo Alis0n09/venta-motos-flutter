@@ -38,7 +38,7 @@ class AppDrawer extends ConsumerWidget {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text('Venta de Motos', style: AppTextStyles.heading2),
+                    child: Text('Victal Speed', style: AppTextStyles.heading2),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
@@ -97,6 +97,26 @@ class AppDrawer extends ConsumerWidget {
                 onTap: () {
                   Scaffold.of(context).closeEndDrawer();
                   context.push('/admin');
+                },
+              ),
+
+            if (authState.isAdmin || authState.isBodeguero)
+              ListTile(
+                leading: const Icon(Icons.warehouse_outlined),
+                title: const Text('Inventario'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/inventario');
+                },
+              ),
+
+            if (authState.isStaff)
+              ListTile(
+                leading: const Icon(Icons.store_outlined),
+                title: const Text('Sucursales'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/sucursales');
                 },
               ),
 

@@ -6,16 +6,23 @@ import '../../data/local/secure_storage.dart';
 import '../../data/remote/api/auth_remote_datasource.dart';
 import '../../domain/model/auth_models.dart';
 import '../../domain/model/auth_state.dart';
+import 'inventario_provider.dart';
+import 'sucursal_provider.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRemoteDatasource _datasource;
   final SecureStorage _storage;
+  final Ref _ref;
 
-  AuthNotifier(this._datasource, this._storage) : super(const AuthState.checking()) {
+  AuthNotifier(this._datasource, this._storage, this._ref) : super(const AuthState.checking()) {
     _restoreSession();
   }
 
-  // Restaurar sesión al iniciar la app
+  void _limpiarCachesDePerfil() {
+    _ref.invalidate(perfilCuentaProvider);
+    _ref.invalidate(perfilClienteProvider);
+  }
+
   Future<void> _restoreSession() async {
     try {
       final isLoggedIn = await _storage.isLoggedIn();
@@ -46,11 +53,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // Login
   Future<void> login(String username, String password) async {
     state = const AuthState.checking();
     try {
       final user = await _datasource.login(username.trim(), password);
+      _limpiarCachesDePerfil();
       state = AuthState.authenticated(user);
     } on ApiException catch (e) {
       state = AuthState.unauthenticated(e.message);
@@ -59,7 +66,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // Registro
   Future<void> register({
     required String username,
     required String email,
@@ -82,6 +88,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         cedula: cedula.trim(),
         telefono: telefono,
       );
+      _limpiarCachesDePerfil();
       state = AuthState.authenticated(user);
     } on ApiException catch (e) {
       state = AuthState.unauthenticated(e.message);
@@ -90,10 +97,14 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // Logout
   Future<void> logout() async {
     await _datasource.logout();
+    _limpiarCachesDePerfil();
     state = const AuthState.unauthenticated();
+    // Fuerza a que inventario y sucursales se reconstruyan desde cero con el próximo
+    // usuario, en vez de arrastrar filtros (ciudad, moto, etc.) de la sesión anterior.
+    _ref.invalidate(sucursalProvider);
+    _ref.invalidate(inventarioProvider);
   }
 
   void clearError() {
@@ -107,5 +118,6 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(
     ref.watch(authDatasourceProvider),
     ref.watch(secureStorageProvider),
+    ref,
   );
 });

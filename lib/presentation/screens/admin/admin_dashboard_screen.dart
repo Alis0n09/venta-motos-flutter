@@ -230,7 +230,7 @@ class AdminDashboardScreen extends ConsumerWidget {
               context.push('/admin/motos');
               break;
             case 2:
-              context.push('/admin/inventario');
+              context.push('/inventario');
               break;
             case 3:
               context.push('/admin/ventas');
