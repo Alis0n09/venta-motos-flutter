@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/venta_admin_provider.dart';
 
 class VentaFormScreen extends ConsumerStatefulWidget {
@@ -32,6 +33,9 @@ class _VentaFormScreenState extends ConsumerState<VentaFormScreen> {
     if (!mounted) return;
 
     if (exito) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Venta actualizada'), backgroundColor: AppColors.success),
+      );
       Navigator.of(context).pop();
     } else {
       final error = ref.read(ventaAdminProvider).error;
@@ -60,7 +64,15 @@ class _VentaFormScreenState extends ConsumerState<VentaFormScreen> {
 
     final exito = await ref.read(ventaAdminProvider.notifier).eliminar(widget.ventaId);
     if (!mounted) return;
-    if (exito) Navigator.of(context).pop();
+
+    if (exito) {
+      Navigator.of(context).pop();
+    } else {
+      final error = ref.read(ventaAdminProvider).error;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error?.toString() ?? 'No se pudo eliminar la venta'), backgroundColor: AppColors.error),
+      );
+    }
   }
 
   @override
@@ -68,6 +80,7 @@ class _VentaFormScreenState extends ConsumerState<VentaFormScreen> {
     final ventaAsync = ref.watch(ventaDetalleProvider(widget.ventaId));
     final vendedoresAsync = ref.watch(vendedoresProvider);
     final adminState = ref.watch(ventaAdminProvider);
+    final authState = ref.watch(authProvider);
     final isLoading = adminState.isLoading;
 
     return Scaffold(
@@ -146,48 +159,74 @@ class _VentaFormScreenState extends ConsumerState<VentaFormScreen> {
                 Text('VENDEDOR', style: AppTextStyles.caption),
                 const SizedBox(height: 6),
                 vendedoresAsync.when(
-                  data: (vendedores) => DropdownButtonFormField<int>(
-                    initialValue: _vendedorSeleccionado,
-                    hint: const Text('Sin asignar'),
-                    items: vendedores
-                        .map((v) => DropdownMenuItem(value: v.id, child: Text('${v.nombreCompleto} (${v.rol})')))
-                        .toList(),
-                    onChanged: isLoading ? null : (v) => setState(() => _vendedorSeleccionado = v),
-                  ),
+                  data: (vendedores) {
+                    // Si el vendedor asignado ya no existe en la lista (fue desactivado,
+                    // eliminado, o simplemente no llegó en la página cargada), el dropdown
+                    // no puede usarlo como valor inicial o Flutter truena con un assert.
+                    // Por eso se valida que exista antes de usarlo.
+                    final idsDisponibles = vendedores.map((v) => v.id).toSet();
+                    final valorSeguro = idsDisponibles.contains(_vendedorSeleccionado)
+                        ? _vendedorSeleccionado
+                        : null;
+
+                    return DropdownButtonFormField<int>(
+                      initialValue: valorSeguro,
+                      hint: const Text('Sin asignar'),
+                      items: vendedores
+                          .map((v) => DropdownMenuItem(value: v.id, child: Text('${v.nombreCompleto} (${v.rol})')))
+                          .toList(),
+                      onChanged: isLoading ? null : (v) => setState(() => _vendedorSeleccionado = v),
+                    );
+                  },
                   loading: () => const LinearProgressIndicator(),
                   error: (_, __) => const Text('No se pudieron cargar los vendedores'),
                 ),
 
                 const SizedBox(height: 32),
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: isLoading ? null : _confirmarEliminar,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: const BorderSide(color: AppColors.border),
+                if (authState.isAdmin)
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton(
+                          onPressed: isLoading ? null : _confirmarEliminar,
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            side: const BorderSide(color: AppColors.border),
+                          ),
+                          child: const Text('Eliminar', style: TextStyle(color: AppColors.textPrimary)),
                         ),
-                        child: const Text('Eliminar', style: TextStyle(color: AppColors.textPrimary)),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton(
-                        onPressed: isLoading ? null : _submit,
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Text('Guardar cambios'),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: isLoading ? null : _submit,
+                          child: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Text('Guardar cambios'),
+                        ),
                       ),
+                    ],
+                  )
+                else
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isLoading ? null : _submit,
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Text('Guardar cambios'),
                     ),
-                  ],
-                ),
+                  ),
               ],
             ),
           );
