@@ -116,7 +116,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/perfil',
-        builder: (_, __) => const _PlaceholderScreen('Perfil'),
+        builder: (_, __) => const PerfilScreen(),
       ),
 
       // ── Inventario (admin / bodeguero) ─────

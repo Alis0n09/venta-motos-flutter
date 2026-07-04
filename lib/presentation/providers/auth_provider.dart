@@ -18,7 +18,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _restoreSession();
   }
 
-  // Restaurar sesión al iniciar la app
+  void _limpiarCachesDePerfil() {
+    _ref.invalidate(perfilCuentaProvider);
+    _ref.invalidate(perfilClienteProvider);
+  }
+
   Future<void> _restoreSession() async {
     try {
       final isLoggedIn = await _storage.isLoggedIn();
@@ -49,11 +53,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // Login
   Future<void> login(String username, String password) async {
     state = const AuthState.checking();
     try {
       final user = await _datasource.login(username.trim(), password);
+      _limpiarCachesDePerfil();
       state = AuthState.authenticated(user);
     } on ApiException catch (e) {
       state = AuthState.unauthenticated(e.message);
@@ -62,7 +66,6 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // Registro
   Future<void> register({
     required String username,
     required String email,
@@ -85,6 +88,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         cedula: cedula.trim(),
         telefono: telefono,
       );
+      _limpiarCachesDePerfil();
       state = AuthState.authenticated(user);
     } on ApiException catch (e) {
       state = AuthState.unauthenticated(e.message);
@@ -93,9 +97,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  // Logout
   Future<void> logout() async {
     await _datasource.logout();
+    _limpiarCachesDePerfil();
     state = const AuthState.unauthenticated();
     // Fuerza a que inventario y sucursales se reconstruyan desde cero con el próximo
     // usuario, en vez de arrastrar filtros (ciudad, moto, etc.) de la sesión anterior.
