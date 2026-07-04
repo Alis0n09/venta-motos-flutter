@@ -7,6 +7,7 @@ import '../../data/remote/api/auth_remote_datasource.dart';
 import '../../domain/model/auth_models.dart';
 import '../../domain/model/auth_state.dart';
 import 'inventario_provider.dart';
+import 'perfil_provider.dart';
 import 'sucursal_provider.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {

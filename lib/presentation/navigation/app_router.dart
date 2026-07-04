@@ -4,16 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/model/auth_state.dart';
-<<<<<<< HEAD
 import '../../domain/model/categoria.dart';
+import '../../domain/model/inventario.dart';
 import '../../domain/model/marca.dart';
 import '../../domain/model/moto.dart';
-import '../../domain/model/venta_admin.dart';
-=======
-import '../../domain/model/inventario.dart';
-import '../../domain/model/moto.dart';
 import '../../domain/model/sucursal.dart';
->>>>>>> develop
+import '../../domain/model/venta_admin.dart';
 import '../providers/auth_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
@@ -26,7 +22,6 @@ import '../screens/compra/mis_compras_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_motos_screen.dart';
 import '../screens/admin/moto_form_screen.dart';
-<<<<<<< HEAD
 import '../screens/admin/admin_ventas_screen.dart';
 import '../screens/admin/venta_form_screen.dart';
 import '../screens/admin/admin_marcas_screen.dart';
@@ -34,12 +29,11 @@ import '../screens/admin/marca_form_screen.dart';
 import '../screens/admin/admin_categorias_screen.dart';
 import '../screens/admin/categoria_form_screen.dart';
 import '../screens/favoritos/favoritos_screen.dart';
-=======
 import '../screens/inventario/inventario_list_screen.dart';
 import '../screens/inventario/inventario_form_screen.dart';
 import '../screens/sucursal/sucursal_list_screen.dart';
 import '../screens/sucursal/sucursal_form_screen.dart';
->>>>>>> develop
+import '../screens/perfil/perfil_screen.dart';
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
@@ -91,11 +85,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         return location == '/splash' ? null : '/splash';
       }
 
-<<<<<<< HEAD
-      const privateRoutes = ['/mis-compras', '/perfil', '/admin', '/carrito', '/compra-exitosa'];
-=======
-      const privateRoutes = ['/mis-compras', '/perfil', '/admin', '/sucursales'];
->>>>>>> develop
+      const privateRoutes = [
+        '/mis-compras',
+        '/perfil',
+        '/admin',
+        '/carrito',
+        '/compra-exitosa',
+        '/sucursales',
+      ];
       final isPrivateRoute = privateRoutes.any((r) => location.startsWith(r));
       final isAuthRoute = location == '/login' || location == '/registro';
       final isSplash = location == '/splash';
