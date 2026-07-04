@@ -21,7 +21,9 @@ Inventario _$InventarioFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Inventario {
   int get id => throw _privateConstructorUsedError;
+  int get moto => throw _privateConstructorUsedError;
   String get motoNombre => throw _privateConstructorUsedError;
+  int get sucursal => throw _privateConstructorUsedError;
   String get sucursalNombre => throw _privateConstructorUsedError;
   int get cantidad => throw _privateConstructorUsedError;
   String? get ubicacionBodega => throw _privateConstructorUsedError;
@@ -44,7 +46,9 @@ abstract class $InventarioCopyWith<$Res> {
   @useResult
   $Res call(
       {int id,
+      int moto,
       String motoNombre,
+      int sucursal,
       String sucursalNombre,
       int cantidad,
       String? ubicacionBodega});
@@ -66,7 +70,9 @@ class _$InventarioCopyWithImpl<$Res, $Val extends Inventario>
   @override
   $Res call({
     Object? id = null,
+    Object? moto = null,
     Object? motoNombre = null,
+    Object? sucursal = null,
     Object? sucursalNombre = null,
     Object? cantidad = null,
     Object? ubicacionBodega = freezed,
@@ -76,10 +82,18 @@ class _$InventarioCopyWithImpl<$Res, $Val extends Inventario>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
+      moto: null == moto
+          ? _value.moto
+          : moto // ignore: cast_nullable_to_non_nullable
+              as int,
       motoNombre: null == motoNombre
           ? _value.motoNombre
           : motoNombre // ignore: cast_nullable_to_non_nullable
               as String,
+      sucursal: null == sucursal
+          ? _value.sucursal
+          : sucursal // ignore: cast_nullable_to_non_nullable
+              as int,
       sucursalNombre: null == sucursalNombre
           ? _value.sucursalNombre
           : sucursalNombre // ignore: cast_nullable_to_non_nullable
@@ -106,7 +120,9 @@ abstract class _$$InventarioImplCopyWith<$Res>
   @useResult
   $Res call(
       {int id,
+      int moto,
       String motoNombre,
+      int sucursal,
       String sucursalNombre,
       int cantidad,
       String? ubicacionBodega});
@@ -126,7 +142,9 @@ class __$$InventarioImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? moto = null,
     Object? motoNombre = null,
+    Object? sucursal = null,
     Object? sucursalNombre = null,
     Object? cantidad = null,
     Object? ubicacionBodega = freezed,
@@ -136,10 +154,18 @@ class __$$InventarioImplCopyWithImpl<$Res>
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
+      moto: null == moto
+          ? _value.moto
+          : moto // ignore: cast_nullable_to_non_nullable
+              as int,
       motoNombre: null == motoNombre
           ? _value.motoNombre
           : motoNombre // ignore: cast_nullable_to_non_nullable
               as String,
+      sucursal: null == sucursal
+          ? _value.sucursal
+          : sucursal // ignore: cast_nullable_to_non_nullable
+              as int,
       sucursalNombre: null == sucursalNombre
           ? _value.sucursalNombre
           : sucursalNombre // ignore: cast_nullable_to_non_nullable
@@ -161,7 +187,9 @@ class __$$InventarioImplCopyWithImpl<$Res>
 class _$InventarioImpl implements _Inventario {
   const _$InventarioImpl(
       {required this.id,
+      required this.moto,
       required this.motoNombre,
+      required this.sucursal,
       required this.sucursalNombre,
       required this.cantidad,
       this.ubicacionBodega});
@@ -172,7 +200,11 @@ class _$InventarioImpl implements _Inventario {
   @override
   final int id;
   @override
+  final int moto;
+  @override
   final String motoNombre;
+  @override
+  final int sucursal;
   @override
   final String sucursalNombre;
   @override
@@ -182,7 +214,7 @@ class _$InventarioImpl implements _Inventario {
 
   @override
   String toString() {
-    return 'Inventario(id: $id, motoNombre: $motoNombre, sucursalNombre: $sucursalNombre, cantidad: $cantidad, ubicacionBodega: $ubicacionBodega)';
+    return 'Inventario(id: $id, moto: $moto, motoNombre: $motoNombre, sucursal: $sucursal, sucursalNombre: $sucursalNombre, cantidad: $cantidad, ubicacionBodega: $ubicacionBodega)';
   }
 
   @override
@@ -191,8 +223,11 @@ class _$InventarioImpl implements _Inventario {
         (other.runtimeType == runtimeType &&
             other is _$InventarioImpl &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.moto, moto) || other.moto == moto) &&
             (identical(other.motoNombre, motoNombre) ||
                 other.motoNombre == motoNombre) &&
+            (identical(other.sucursal, sucursal) ||
+                other.sucursal == sucursal) &&
             (identical(other.sucursalNombre, sucursalNombre) ||
                 other.sucursalNombre == sucursalNombre) &&
             (identical(other.cantidad, cantidad) ||
@@ -203,8 +238,8 @@ class _$InventarioImpl implements _Inventario {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType, id, motoNombre, sucursalNombre, cantidad, ubicacionBodega);
+  int get hashCode => Object.hash(runtimeType, id, moto, motoNombre, sucursal,
+      sucursalNombre, cantidad, ubicacionBodega);
 
   /// Create a copy of Inventario
   /// with the given fields replaced by the non-null parameter values.
@@ -225,7 +260,9 @@ class _$InventarioImpl implements _Inventario {
 abstract class _Inventario implements Inventario {
   const factory _Inventario(
       {required final int id,
+      required final int moto,
       required final String motoNombre,
+      required final int sucursal,
       required final String sucursalNombre,
       required final int cantidad,
       final String? ubicacionBodega}) = _$InventarioImpl;
@@ -236,7 +273,11 @@ abstract class _Inventario implements Inventario {
   @override
   int get id;
   @override
+  int get moto;
+  @override
   String get motoNombre;
+  @override
+  int get sucursal;
   @override
   String get sucursalNombre;
   @override

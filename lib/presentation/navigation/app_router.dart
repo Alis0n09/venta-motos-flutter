@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/model/auth_state.dart';
+import '../../domain/model/inventario.dart';
 import '../../domain/model/moto.dart';
+import '../../domain/model/sucursal.dart';
 import '../providers/auth_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
@@ -14,6 +16,10 @@ import '../screens/catalogo/moto_detail_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_motos_screen.dart';
 import '../screens/admin/moto_form_screen.dart';
+import '../screens/inventario/inventario_list_screen.dart';
+import '../screens/inventario/inventario_form_screen.dart';
+import '../screens/sucursal/sucursal_list_screen.dart';
+import '../screens/sucursal/sucursal_form_screen.dart';
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
@@ -57,13 +63,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isChecking = authState.isChecking;
       final isAuth = authState.isAuthenticated;
       final isStaff = authState.isStaff;
+      final isAdmin = authState.isAdmin;
+      final isBodeguero = authState.isBodeguero;
       final location = state.matchedLocation;
 
       if (isChecking) {
         return location == '/splash' ? null : '/splash';
       }
 
-      const privateRoutes = ['/mis-compras', '/perfil', '/admin'];
+      const privateRoutes = ['/mis-compras', '/perfil', '/admin', '/sucursales'];
       final isPrivateRoute = privateRoutes.any((r) => location.startsWith(r));
       final isAuthRoute = location == '/login' || location == '/registro';
       final isSplash = location == '/splash';
@@ -73,6 +81,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (isPrivateRoute && !isAuth) return '/login';
 
       if (location.startsWith('/admin') && isAuth && !isStaff) return '/';
+
+      // Solo /sucursales/nuevo y /sucursales/:id/editar requieren isStaff;
+      // el listado ('/sucursales') solo requiere estar autenticado (IsStaffOrReadOnly).
+      if (location.startsWith('/sucursales/') && isAuth && !isStaff) return '/sucursales';
+
+      if (location.startsWith('/inventario') && !(isAdmin || isBodeguero)) return '/';
 
       if (isAuth && isAuthRoute) return '/';
 
@@ -105,6 +119,34 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, __) => const _PlaceholderScreen('Perfil'),
       ),
 
+      // ── Inventario (admin / bodeguero) ─────
+      GoRoute(
+        path: '/inventario',
+        builder: (_, __) => const InventarioListScreen(),
+      ),
+      GoRoute(
+        path: '/inventario/nuevo',
+        builder: (_, __) => const InventarioFormScreen(),
+      ),
+      GoRoute(
+        path: '/inventario/:id/editar',
+        builder: (_, state) => InventarioFormScreen(inventario: state.extra as Inventario),
+      ),
+
+      // ── Sucursales ─────
+      GoRoute(
+        path: '/sucursales',
+        builder: (_, __) => const SucursalListScreen(),
+      ),
+      GoRoute(
+        path: '/sucursales/nuevo',
+        builder: (_, __) => const SucursalFormScreen(),
+      ),
+      GoRoute(
+        path: '/sucursales/:id/editar',
+        builder: (_, state) => SucursalFormScreen(sucursal: state.extra as Sucursal),
+      ),
+
       // ── Admin ─────
       GoRoute(
         path: '/admin',
@@ -121,10 +163,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/motos/editar',
         builder: (_, state) => MotoFormScreen(moto: state.extra as Moto),
-      ),
-      GoRoute(
-        path: '/admin/inventario',
-        builder: (_, __) => const _PlaceholderScreen('Inventario — módulo de Vicky S.'),
       ),
       GoRoute(
         path: '/admin/ventas',

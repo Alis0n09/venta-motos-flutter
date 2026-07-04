@@ -6,12 +6,15 @@ import '../../data/local/secure_storage.dart';
 import '../../data/remote/api/auth_remote_datasource.dart';
 import '../../domain/model/auth_models.dart';
 import '../../domain/model/auth_state.dart';
+import 'inventario_provider.dart';
+import 'sucursal_provider.dart';
 
 class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRemoteDatasource _datasource;
   final SecureStorage _storage;
+  final Ref _ref;
 
-  AuthNotifier(this._datasource, this._storage) : super(const AuthState.checking()) {
+  AuthNotifier(this._datasource, this._storage, this._ref) : super(const AuthState.checking()) {
     _restoreSession();
   }
 
@@ -94,6 +97,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     await _datasource.logout();
     state = const AuthState.unauthenticated();
+    // Fuerza a que inventario y sucursales se reconstruyan desde cero con el próximo
+    // usuario, en vez de arrastrar filtros (ciudad, moto, etc.) de la sesión anterior.
+    _ref.invalidate(sucursalProvider);
+    _ref.invalidate(inventarioProvider);
   }
 
   void clearError() {
@@ -107,5 +114,6 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   return AuthNotifier(
     ref.watch(authDatasourceProvider),
     ref.watch(secureStorageProvider),
+    ref,
   );
 });
