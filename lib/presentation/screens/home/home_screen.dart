@@ -169,7 +169,7 @@ class HomeScreen extends ConsumerWidget {
               context.push('/catalogo');
               break;
             case 2:
-              // TODO: context.push('/favoritos') cuando exista
+              context.push('/favoritos');
               break;
             case 3:
               if (authState.isAuthenticated) {
