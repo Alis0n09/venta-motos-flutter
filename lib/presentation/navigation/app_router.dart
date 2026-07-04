@@ -14,6 +14,7 @@ import '../screens/catalogo/moto_detail_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_motos_screen.dart';
 import '../screens/admin/moto_form_screen.dart';
+import '../screens/perfil/perfil_screen.dart';
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
@@ -102,7 +103,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/perfil',
-        builder: (_, __) => const _PlaceholderScreen('Perfil'),
+        builder: (_, __) => const PerfilScreen(),
       ),
 
       // ── Admin ─────
