@@ -93,7 +93,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Text('Venta de Motos', style: AppTextStyles.heading2),
+                    Text('Victal Speed', style: AppTextStyles.heading2),
                   ],
                 ),
 

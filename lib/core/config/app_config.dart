@@ -18,6 +18,6 @@ class AppConfig {
     return url;
   }
 
-  static const String appName = 'Venta Motos App';
+  static const String appName = 'Victal Speed';
   static const double taxRate = 0.15; // IVA Ecuador 15%
 }
