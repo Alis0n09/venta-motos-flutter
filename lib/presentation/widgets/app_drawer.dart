@@ -38,7 +38,7 @@ class AppDrawer extends ConsumerWidget {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text('Venta de Motos', style: AppTextStyles.heading2),
+                    child: Text('Victal Speed', style: AppTextStyles.heading2),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
