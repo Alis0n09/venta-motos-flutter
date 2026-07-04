@@ -4,16 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/model/auth_state.dart';
+import '../../domain/model/categoria.dart';
+import '../../domain/model/marca.dart';
 import '../../domain/model/moto.dart';
+import '../../domain/model/venta_admin.dart';
 import '../providers/auth_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/catalogo/catalogo_screen.dart';
 import '../screens/catalogo/moto_detail_screen.dart';
+import '../screens/compra/carrito_screen.dart';
+import '../screens/compra/compra_exitosa_screen.dart';
+import '../screens/compra/mis_compras_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_motos_screen.dart';
 import '../screens/admin/moto_form_screen.dart';
+import '../screens/admin/admin_ventas_screen.dart';
+import '../screens/admin/venta_form_screen.dart';
+import '../screens/admin/admin_marcas_screen.dart';
+import '../screens/admin/marca_form_screen.dart';
+import '../screens/admin/admin_categorias_screen.dart';
+import '../screens/admin/categoria_form_screen.dart';
+import '../screens/favoritos/favoritos_screen.dart';
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
@@ -63,7 +76,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         return location == '/splash' ? null : '/splash';
       }
 
-      const privateRoutes = ['/mis-compras', '/perfil', '/admin'];
+      const privateRoutes = ['/mis-compras', '/perfil', '/admin', '/carrito', '/compra-exitosa'];
       final isPrivateRoute = privateRoutes.any((r) => location.startsWith(r));
       final isAuthRoute = location == '/login' || location == '/registro';
       final isSplash = location == '/splash';
@@ -94,11 +107,23 @@ final routerProvider = Provider<GoRouter>((ref) {
           motoId: int.parse(state.pathParameters['id']!),
         ),
       ),
+      GoRoute(
+        path: '/favoritos',
+        builder: (_, __) => const FavoritosScreen(),
+      ),
 
       // ── Cliente privado ────
       GoRoute(
+        path: '/carrito',
+        builder: (_, __) => const CarritoScreen(),
+      ),
+      GoRoute(
+        path: '/compra-exitosa',
+        builder: (_, state) => CompraExitosaScreen(venta: state.extra as VentaAdmin),
+      ),
+      GoRoute(
         path: '/mis-compras',
-        builder: (_, __) => const _PlaceholderScreen('Mis compras'),
+        builder: (_, __) => const MisComprasScreen(),
       ),
       GoRoute(
         path: '/perfil',
@@ -128,7 +153,35 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/admin/ventas',
-        builder: (_, __) => const _PlaceholderScreen('Ventas — módulo de Vicky S.'),
+        builder: (_, __) => const AdminVentasScreen(),
+      ),
+      GoRoute(
+        path: '/admin/ventas/editar',
+        builder: (_, state) => VentaFormScreen(ventaId: state.extra as int),
+      ),
+      GoRoute(
+        path: '/admin/marcas',
+        builder: (_, __) => const AdminMarcasScreen(),
+      ),
+      GoRoute(
+        path: '/admin/marcas/crear',
+        builder: (_, __) => const MarcaFormScreen(),
+      ),
+      GoRoute(
+        path: '/admin/marcas/editar',
+        builder: (_, state) => MarcaFormScreen(marca: state.extra as Marca),
+      ),
+      GoRoute(
+        path: '/admin/categorias',
+        builder: (_, __) => const AdminCategoriasScreen(),
+      ),
+      GoRoute(
+        path: '/admin/categorias/crear',
+        builder: (_, __) => const CategoriaFormScreen(),
+      ),
+      GoRoute(
+        path: '/admin/categorias/editar',
+        builder: (_, state) => CategoriaFormScreen(categoria: state.extra as Categoria),
       ),
     ],
   );

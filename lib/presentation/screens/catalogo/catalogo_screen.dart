@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../providers/auth_provider.dart';
+import '../../providers/carrito_provider.dart';
 import '../../providers/catalog_provider.dart';
 import '../../widgets/moto_card.dart';
 
@@ -27,9 +29,24 @@ class _CatalogoScreenState extends ConsumerState<CatalogoScreen> {
   @override
   Widget build(BuildContext context) {
     final catalogState = ref.watch(catalogProvider);
+    final authState = ref.watch(authProvider);
+    final cantidadCarrito = ref.watch(carritoCantidadProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Catálogo de motos')),
+      appBar: AppBar(
+        title: const Text('Catálogo de motos'),
+        actions: [
+          if (authState.isCliente)
+            IconButton(
+              onPressed: () => context.push('/carrito'),
+              icon: Badge(
+                label: Text('$cantidadCarrito'),
+                isLabelVisible: cantidadCarrito > 0,
+                child: const Icon(Icons.shopping_cart_outlined),
+              ),
+            ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () => ref.read(catalogProvider.notifier).loadMotos(),
         child: ListView(
