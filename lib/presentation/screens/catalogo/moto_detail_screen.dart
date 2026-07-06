@@ -10,6 +10,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/carrito_provider.dart';
 import '../../providers/catalog_provider.dart';
 import '../../providers/favoritos_provider.dart';
+import '../../providers/resena_provider.dart';
 
 class MotoDetailScreen extends ConsumerWidget {
   final int motoId;
@@ -18,6 +19,112 @@ class MotoDetailScreen extends ConsumerWidget {
     super.key,
     required this.motoId,
   });
+
+  Future<void> _abrirFormularioResena(BuildContext context, WidgetRef ref, String motoNombre) async {
+    int ratingSeleccionado = 5;
+    final comentarioController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    await showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final isLoading = ref.watch(resenaFormProvider).isLoading;
+          return AlertDialog(
+            title: Text('Calificar $motoNombre'),
+            content: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (i) {
+                      final estrella = i + 1;
+                      return IconButton(
+                        onPressed: isLoading
+                            ? null
+                            : () => setDialogState(() => ratingSeleccionado = estrella),
+                        icon: Icon(
+                          estrella <= ratingSeleccionado ? Icons.star : Icons.star_border,
+                          color: AppColors.accent,
+                        ),
+                      );
+                    }),
+                  ),
+                  TextFormField(
+                    controller: comentarioController,
+                    enabled: !isLoading,
+                    maxLines: 3,
+                    decoration: const InputDecoration(hintText: '¿Qué te pareció la moto?'),
+                    validator: (v) => (v == null || v.trim().isEmpty) ? 'Escribe un comentario' : null,
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.of(context).pop(),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        if (!formKey.currentState!.validate()) return;
+                        final exito = await ref.read(resenaFormProvider.notifier).enviar(
+                              motoId: motoId,
+                              rating: ratingSeleccionado,
+                              comentario: comentarioController.text.trim(),
+                            );
+                        if (context.mounted) Navigator.of(context).pop();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(exito ? 'Reseña publicada' : 'No se pudo publicar la reseña'),
+                              backgroundColor: exito ? AppColors.success : AppColors.error,
+                            ),
+                          );
+                        }
+                      },
+                child: isLoading
+                    ? const SizedBox(height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Text('Publicar'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _confirmarEliminarResena(BuildContext context, WidgetRef ref, int resenaId) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Eliminar reseña?'),
+        content: const Text('Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Eliminar', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmar != true) return;
+
+    final exito = await ref.read(resenaFormProvider.notifier).eliminar(id: resenaId, motoId: motoId);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(exito ? 'Reseña eliminada' : 'No se pudo eliminar la reseña'),
+          backgroundColor: exito ? AppColors.success : AppColors.error,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -203,8 +310,136 @@ class MotoDetailScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+
+              const SizedBox(height: 32),
+              const Divider(),
+              const SizedBox(height: 16),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Reseñas', style: AppTextStyles.heading2),
+                  if (authState.isCliente)
+                    TextButton(
+                      onPressed: () => _abrirFormularioResena(
+                        context,
+                        ref,
+                        '${moto.marcaNombre} ${moto.modelo}',
+                      ),
+                      child: const Text('Escribir reseña', style: TextStyle(color: AppColors.accent)),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+
+              Consumer(
+                builder: (context, ref, _) {
+                  final resenasAsync = ref.watch(resenasPorMotoProvider(motoId));
+                  return resenasAsync.when(
+                    loading: () => const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                    error: (_, __) => const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Text('No se pudieron cargar las reseñas', style: AppTextStyles.bodySecondary),
+                    ),
+                    data: (resenas) {
+                      if (resenas.isEmpty) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20),
+                          child: Text('Aún no hay reseñas para esta moto', style: AppTextStyles.bodySecondary),
+                        );
+                      }
+                      final promedio = resenas.map((r) => r.rating).reduce((a, b) => a + b) / resenas.length;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.star, color: AppColors.accent, size: 20),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${promedio.toStringAsFixed(1)} · ${resenas.length} reseña${resenas.length == 1 ? '' : 's'}',
+                                style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          for (final resena in resenas) ...[
+                            _ResenaCard(
+                              resena: resena,
+                              puedeEliminar: authState.isAdmin,
+                              onEliminar: () => _confirmarEliminarResena(context, ref, resena.id),
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ResenaCard extends StatelessWidget {
+  final dynamic resena;
+  final bool puedeEliminar;
+  final VoidCallback onEliminar;
+
+  const _ResenaCard({
+    required this.resena,
+    required this.puedeEliminar,
+    required this.onEliminar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    resena.clienteNombre ?? 'Cliente',
+                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700),
+                  ),
+                ),
+                Row(
+                  children: List.generate(
+                    5,
+                    (i) => Icon(
+                      i < resena.rating ? Icons.star : Icons.star_border,
+                      size: 14,
+                      color: AppColors.accent,
+                    ),
+                  ),
+                ),
+                if (puedeEliminar)
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: onEliminar,
+                  ),
+              ],
+            ),
+            if (resena.comentario.isNotEmpty) ...[
+              const SizedBox(height: 6),
+              Text(resena.comentario, style: AppTextStyles.bodySecondary),
+            ],
+          ],
         ),
       ),
     );

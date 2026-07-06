@@ -94,6 +94,41 @@ class MisComprasScreen extends ConsumerWidget {
                             const SizedBox(height: 8),
                             Text('Atendido por ${venta.vendedorNombre}', style: AppTextStyles.bodySecondary),
                           ],
+                          const SizedBox(height: 12),
+                          Consumer(
+                            builder: (context, ref, _) {
+                              final garantiasAsync = ref.watch(garantiasPorVentaProvider(venta.id));
+                              return garantiasAsync.when(
+                                loading: () => const SizedBox.shrink(),
+                                error: (_, __) => const SizedBox.shrink(),
+                                data: (garantias) {
+                                  if (garantias.isEmpty) return const SizedBox.shrink();
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Divider(height: 20),
+                                      Text('GARANTÍA', style: AppTextStyles.caption),
+                                      const SizedBox(height: 6),
+                                      for (final garantia in garantias)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 4),
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.verified_user_outlined, size: 16, color: AppColors.accent),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                '${garantia.tipo} · válida hasta ${DateFormat('dd/MM/yyyy').format(garantia.fechaFin)}',
+                                                style: AppTextStyles.bodySecondary,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
                         ],
                       ),
                     );
