@@ -20,7 +20,7 @@ class MotoDetailScreen extends ConsumerWidget {
     required this.motoId,
   });
 
-  Future<void> _abrirFormularioResena(BuildContext context, WidgetRef ref) async {
+  Future<void> _abrirFormularioResena(BuildContext context, WidgetRef ref, String motoNombre) async {
     int ratingSeleccionado = 5;
     final comentarioController = TextEditingController();
     final formKey = GlobalKey<FormState>();
@@ -31,7 +31,7 @@ class MotoDetailScreen extends ConsumerWidget {
         builder: (context, setDialogState) {
           final isLoading = ref.watch(resenaFormProvider).isLoading;
           return AlertDialog(
-            title: const Text('Escribir reseña'),
+            title: Text('Calificar $motoNombre'),
             content: Form(
               key: formKey,
               child: Column(
@@ -96,6 +96,34 @@ class MotoDetailScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+
+  Future<void> _confirmarEliminarResena(BuildContext context, WidgetRef ref, int resenaId) async {
+    final confirmar = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Eliminar reseña?'),
+        content: const Text('Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Eliminar', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmar != true) return;
+
+    final exito = await ref.read(resenaFormProvider.notifier).eliminar(id: resenaId, motoId: motoId);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(exito ? 'Reseña eliminada' : 'No se pudo eliminar la reseña'),
+          backgroundColor: exito ? AppColors.success : AppColors.error,
+        ),
+      );
+    }
   }
 
   @override
@@ -293,7 +321,11 @@ class MotoDetailScreen extends ConsumerWidget {
                   Text('Reseñas', style: AppTextStyles.heading2),
                   if (authState.isCliente)
                     TextButton(
-                      onPressed: () => _abrirFormularioResena(context, ref),
+                      onPressed: () => _abrirFormularioResena(
+                        context,
+                        ref,
+                        '${moto.marcaNombre} ${moto.modelo}',
+                      ),
                       child: const Text('Escribir reseña', style: TextStyle(color: AppColors.accent)),
                     ),
                 ],
@@ -335,7 +367,11 @@ class MotoDetailScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 12),
                           for (final resena in resenas) ...[
-                            _ResenaCard(resena: resena),
+                            _ResenaCard(
+                              resena: resena,
+                              puedeEliminar: authState.isAdmin,
+                              onEliminar: () => _confirmarEliminarResena(context, ref, resena.id),
+                            ),
                             const SizedBox(height: 10),
                           ],
                         ],
@@ -354,7 +390,14 @@ class MotoDetailScreen extends ConsumerWidget {
 
 class _ResenaCard extends StatelessWidget {
   final dynamic resena;
-  const _ResenaCard({required this.resena});
+  final bool puedeEliminar;
+  final VoidCallback onEliminar;
+
+  const _ResenaCard({
+    required this.resena,
+    required this.puedeEliminar,
+    required this.onEliminar,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -367,11 +410,12 @@ class _ResenaCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(
-                  resena.clienteNombre ?? 'Cliente',
-                  style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700),
+                Expanded(
+                  child: Text(
+                    resena.clienteNombre ?? 'Cliente',
+                    style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700),
+                  ),
                 ),
-                const Spacer(),
                 Row(
                   children: List.generate(
                     5,
@@ -382,6 +426,13 @@ class _ResenaCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                if (puedeEliminar)
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18, color: AppColors.error),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: onEliminar,
+                  ),
               ],
             ),
             if (resena.comentario.isNotEmpty) ...[
