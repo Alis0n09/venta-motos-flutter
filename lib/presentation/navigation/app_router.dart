@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/model/auth_state.dart';
 import '../../domain/model/categoria.dart';
+import '../../domain/model/cuota_pago.dart';
 import '../../domain/model/inventario.dart';
 import '../../domain/model/marca.dart';
 import '../../domain/model/moto.dart';
@@ -28,6 +29,9 @@ import '../screens/admin/admin_marcas_screen.dart';
 import '../screens/admin/marca_form_screen.dart';
 import '../screens/admin/admin_categorias_screen.dart';
 import '../screens/admin/categoria_form_screen.dart';
+import '../screens/admin/admin_financiamientos_screen.dart';
+import '../screens/admin/financiamiento_screen.dart';
+import '../screens/admin/cuota_form_screen.dart';
 import '../screens/favoritos/favoritos_screen.dart';
 import '../screens/inventario/inventario_list_screen.dart';
 import '../screens/inventario/inventario_form_screen.dart';
@@ -228,6 +232,33 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/categorias/editar',
         builder: (_, state) => CategoriaFormScreen(categoria: state.extra as Categoria),
+      ),
+
+      // ── Financiamientos ─────
+      GoRoute(
+        path: '/admin/financiamientos',
+        builder: (_, __) => const AdminFinanciamientosScreen(),
+      ),
+      GoRoute(
+        path: '/admin/financiamientos/detalle',
+        builder: (_, state) => FinanciamientoScreen(ventaId: state.extra as int),
+      ),
+      GoRoute(
+        path: '/admin/cuotas/crear',
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return CuotaFormScreen(financiamientoId: extra['financiamientoId'] as int);
+        },
+      ),
+      GoRoute(
+        path: '/admin/cuotas/editar',
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return CuotaFormScreen(
+            financiamientoId: extra['financiamientoId'] as int,
+            cuota: extra['cuota'] as CuotaPago,
+          );
+        },
       ),
     ],
   );

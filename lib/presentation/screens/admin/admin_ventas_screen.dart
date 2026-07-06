@@ -86,6 +86,12 @@ class AdminVentasScreen extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Text('\$${venta.total.toStringAsFixed(0)}', style: AppTextStyles.price),
+                            if (venta.metodoPago == 'credito')
+                              IconButton(
+                                tooltip: 'Financiamiento',
+                                icon: const Icon(Icons.credit_score_outlined, color: AppColors.textSecondary),
+                                onPressed: () => context.push('/admin/financiamientos/detalle', extra: venta.id),
+                              ),
                             IconButton(
                               icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondary),
                               onPressed: () => context.push('/admin/ventas/editar', extra: venta.id),
