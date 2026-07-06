@@ -207,6 +207,19 @@ class AdminDashboardScreen extends ConsumerWidget {
                     ),
                   ),
 
+                const SizedBox(height: 12),
+
+                if (authState.isAdmin || authState.isBodeguero)
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () => context.push('/admin/repuestos'),
+                      icon: const Icon(Icons.settings_outlined),
+                      label: const Text('Repuestos'),
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                    ),
+                  ),
+
                 const SizedBox(height: 28),
 
                 // ── Ventas recientes ──────────────────────
