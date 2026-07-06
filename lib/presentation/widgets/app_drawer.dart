@@ -77,7 +77,7 @@ class AppDrawer extends ConsumerWidget {
                     title: const Text('Agendar mantenimiento'),
                     onTap: () {
                       Scaffold.of(context).closeEndDrawer();
-                      // TODO: context.push('/mantenimiento') cuando exista
+                      context.push('/mantenimiento');
                     },
                   ),
 

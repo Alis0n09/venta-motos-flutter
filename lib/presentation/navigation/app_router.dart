@@ -53,6 +53,10 @@ import '../screens/perfil/perfil_screen.dart';
 import '../screens/admin/admin_garantias_screen.dart';
 import '../screens/admin/garantia_form_screen.dart';
 import '../../domain/model/garantia.dart';
+import '../screens/admin/admin_repuestos_screen.dart';
+import '../screens/admin/repuesto_form_screen.dart';
+import '../../domain/model/repuesto.dart';
+import '../screens/mantenimiento/mantenimiento_screen.dart';
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
@@ -106,9 +110,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (location.startsWith('/compras') && !(isAdmin || isBodeguero)) return '/';
 
-      // Direccion, SucursalStaff y LogsActividad: el backend permite lectura a
-      // cualquier autenticado (IsStaffOrReadOnly), pero en la app restringimos
-      // toda la pantalla (lectura y escritura) a isStaff por ser datos internos.
       if (location.startsWith('/direcciones') && !isStaff) return '/';
 
       if (location.startsWith('/sucursal-staff') && !isStaff) return '/';
@@ -305,6 +306,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/garantias/editar',
         builder: (_, state) => GarantiaFormScreen(garantia: state.extra as Garantia),
+      ),
+
+      GoRoute(path: '/admin/repuestos', builder: (_, __) => const AdminRepuestosScreen()),
+      GoRoute(path: '/admin/repuestos/crear', builder: (_, __) => const RepuestoFormScreen()),
+      GoRoute(
+        path: '/admin/repuestos/editar',
+        builder: (_, state) => RepuestoFormScreen(repuesto: state.extra as Repuesto),
+      ),
+      
+      GoRoute(
+        path: '/mantenimiento',
+        builder: (_, __) => const MantenimientoScreen(),
       ),
 
       // ── Financiamientos ─────
