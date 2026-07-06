@@ -1,3 +1,5 @@
+// lib/data/remote/api/resena_remote_datasource.dart
+
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/error/api_exception.dart';
@@ -7,6 +9,7 @@ import 'dio_client.dart';
 abstract class ResenaRemoteDatasource {
   Future<List<Resena>> getResenasPorMoto(int motoId);
   Future<Resena> crearResena({required int motoId, required int rating, required String comentario});
+  Future<void> eliminarResena(int id);
 }
 
 class ResenaRemoteDatasourceImpl implements ResenaRemoteDatasource {
@@ -39,6 +42,15 @@ class ResenaRemoteDatasourceImpl implements ResenaRemoteDatasource {
         'comentario': comentario,
       });
       return Resena.fromJson(res.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  @override
+  Future<void> eliminarResena(int id) async {
+    try {
+      await _dio.delete('/resenas/$id/');
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);
     }

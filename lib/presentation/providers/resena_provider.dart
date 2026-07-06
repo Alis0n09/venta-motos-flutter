@@ -31,6 +31,22 @@ class ResenaFormNotifier extends StateNotifier<AsyncValue<void>> {
       return false;
     }
   }
+
+  Future<bool> eliminar({required int id, required int motoId}) async {
+    state = const AsyncValue.loading();
+    try {
+      await _datasource.eliminarResena(id);
+      state = const AsyncValue.data(null);
+      _ref.invalidate(resenasPorMotoProvider(motoId));
+      return true;
+    } on ApiException catch (e, st) {
+      state = AsyncValue.error(e.message, st);
+      return false;
+    } catch (e, st) {
+      state = AsyncValue.error('Error inesperado.', st);
+      return false;
+    }
+  }
 }
 
 final resenaFormProvider = StateNotifierProvider<ResenaFormNotifier, AsyncValue<void>>((ref) {
