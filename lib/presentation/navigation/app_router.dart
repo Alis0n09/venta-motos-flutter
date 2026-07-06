@@ -38,6 +38,9 @@ import '../screens/inventario/inventario_form_screen.dart';
 import '../screens/sucursal/sucursal_list_screen.dart';
 import '../screens/sucursal/sucursal_form_screen.dart';
 import '../screens/perfil/perfil_screen.dart';
+import '../screens/admin/admin_garantias_screen.dart';
+import '../screens/admin/garantia_form_screen.dart';
+import '../../domain/model/garantia.dart';
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
@@ -107,8 +110,6 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (location.startsWith('/admin') && isAuth && !isStaff) return '/';
 
-      // Solo /sucursales/nuevo y /sucursales/:id/editar requieren isStaff;
-      // el listado ('/sucursales') solo requiere estar autenticado (IsStaffOrReadOnly).
       if (location.startsWith('/sucursales/') && isAuth && !isStaff) return '/sucursales';
 
       if (location.startsWith('/inventario') && !(isAdmin || isBodeguero)) return '/';
@@ -232,6 +233,19 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/categorias/editar',
         builder: (_, state) => CategoriaFormScreen(categoria: state.extra as Categoria),
+      ),
+
+      GoRoute(
+        path: '/admin/garantias',
+        builder: (_, __) => const AdminGarantiasScreen(),
+      ),
+      GoRoute(
+        path: '/admin/garantias/crear',
+        builder: (_, __) => const GarantiaFormScreen(),
+      ),
+      GoRoute(
+        path: '/admin/garantias/editar',
+        builder: (_, state) => GarantiaFormScreen(garantia: state.extra as Garantia),
       ),
 
       // ── Financiamientos ─────
