@@ -57,6 +57,7 @@ import '../screens/admin/admin_repuestos_screen.dart';
 import '../screens/admin/repuesto_form_screen.dart';
 import '../../domain/model/repuesto.dart';
 import '../screens/mantenimiento/mantenimiento_screen.dart';
+import '../screens/admin/admin_historial_precios_screen.dart';
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
@@ -314,10 +315,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/admin/repuestos/editar',
         builder: (_, state) => RepuestoFormScreen(repuesto: state.extra as Repuesto),
       ),
-      
+
       GoRoute(
         path: '/mantenimiento',
         builder: (_, __) => const MantenimientoScreen(),
+      ),
+
+      GoRoute(
+        path: '/admin/historial-precios',
+        builder: (_, __) => const AdminHistorialPreciosScreen(),
       ),
 
       // ── Financiamientos ─────

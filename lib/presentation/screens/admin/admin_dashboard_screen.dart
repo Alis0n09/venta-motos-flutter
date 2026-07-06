@@ -220,6 +220,18 @@ class AdminDashboardScreen extends ConsumerWidget {
                     ),
                   ),
 
+                const SizedBox(height: 12),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.push('/admin/historial-precios'),
+                    icon: const Icon(Icons.trending_up),
+                    label: const Text('Historial de precios'),
+                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                  ),
+                ),
+
                 const SizedBox(height: 28),
 
                 // ── Ventas recientes ──────────────────────
