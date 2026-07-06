@@ -1,22 +1,22 @@
-// lib/presentation/providers/inventario_admin_provider.dart
+// lib/presentation/providers/direccion_admin_provider.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/error/api_exception.dart';
-import '../../data/remote/api/inventario_remote_datasource.dart';
-import 'inventario_provider.dart';
+import '../../data/remote/api/direccion_remote_datasource.dart';
+import 'direccion_provider.dart';
 
-class InventarioAdminNotifier extends StateNotifier<AsyncValue<void>> {
-  final InventarioRemoteDatasource _datasource;
+class DireccionAdminNotifier extends StateNotifier<AsyncValue<void>> {
+  final DireccionRemoteDatasource _datasource;
   final Ref _ref;
 
-  InventarioAdminNotifier(this._datasource, this._ref) : super(const AsyncValue.data(null));
+  DireccionAdminNotifier(this._datasource, this._ref) : super(const AsyncValue.data(null));
 
   Future<bool> crear(Map<String, dynamic> payload) async {
     state = const AsyncValue.loading();
     try {
-      await _datasource.createInventario(payload);
+      await _datasource.createDireccion(payload);
       state = const AsyncValue.data(null);
-      _ref.read(inventarioProvider.notifier).loadInventarios();
+      _ref.read(direccionProvider.notifier).loadDirecciones();
       return true;
     } on ApiException catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -30,9 +30,9 @@ class InventarioAdminNotifier extends StateNotifier<AsyncValue<void>> {
   Future<bool> editar(int id, Map<String, dynamic> payload) async {
     state = const AsyncValue.loading();
     try {
-      await _datasource.updateInventario(id, payload);
+      await _datasource.updateDireccion(id, payload);
       state = const AsyncValue.data(null);
-      _ref.read(inventarioProvider.notifier).loadInventarios();
+      _ref.read(direccionProvider.notifier).loadDirecciones();
       return true;
     } on ApiException catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -46,9 +46,9 @@ class InventarioAdminNotifier extends StateNotifier<AsyncValue<void>> {
   Future<bool> eliminar(int id) async {
     state = const AsyncValue.loading();
     try {
-      await _datasource.deleteInventario(id);
+      await _datasource.deleteDireccion(id);
       state = const AsyncValue.data(null);
-      _ref.read(inventarioProvider.notifier).loadInventarios();
+      _ref.read(direccionProvider.notifier).loadDirecciones();
       return true;
     } on ApiException catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -60,7 +60,7 @@ class InventarioAdminNotifier extends StateNotifier<AsyncValue<void>> {
   }
 }
 
-final inventarioAdminProvider =
-    StateNotifierProvider.autoDispose<InventarioAdminNotifier, AsyncValue<void>>((ref) {
-  return InventarioAdminNotifier(ref.watch(inventarioDatasourceProvider), ref);
+final direccionAdminProvider =
+    StateNotifierProvider.autoDispose<DireccionAdminNotifier, AsyncValue<void>>((ref) {
+  return DireccionAdminNotifier(ref.watch(direccionDatasourceProvider), ref);
 });

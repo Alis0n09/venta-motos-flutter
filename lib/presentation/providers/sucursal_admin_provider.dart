@@ -60,6 +60,7 @@ class SucursalAdminNotifier extends StateNotifier<AsyncValue<void>> {
   }
 }
 
-final sucursalAdminProvider = StateNotifierProvider<SucursalAdminNotifier, AsyncValue<void>>((ref) {
+final sucursalAdminProvider =
+    StateNotifierProvider.autoDispose<SucursalAdminNotifier, AsyncValue<void>>((ref) {
   return SucursalAdminNotifier(ref.watch(sucursalDatasourceProvider), ref);
 });
