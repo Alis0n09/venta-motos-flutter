@@ -38,11 +38,11 @@ class AppDrawer extends ConsumerWidget {
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text('Venta de Motos', style: AppTextStyles.heading2),
+                    child: Text('Victal Speed', style: AppTextStyles.heading2),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => Scaffold.of(context).closeEndDrawer(),
                   ),
                 ],
               ),
@@ -64,15 +64,15 @@ class AppDrawer extends ConsumerWidget {
               leading: const Icon(Icons.favorite_border),
               title: const Text('Mis favoritos'),
               onTap: () {
-                Navigator.of(context).pop();
-                // TODO: context.push('/favoritos') cuando exista
+                Scaffold.of(context).closeEndDrawer();
+                context.push('/favoritos');
               },
             ),
             ListTile(
               leading: const Icon(Icons.build_outlined),
               title: const Text('Agendar mantenimiento'),
               onTap: () {
-                Navigator.of(context).pop();
+                Scaffold.of(context).closeEndDrawer();
                 // TODO: context.push('/mantenimiento') cuando exista
               },
             ),
@@ -83,7 +83,7 @@ class AppDrawer extends ConsumerWidget {
                 leading: const Icon(Icons.receipt_long_outlined),
                 title: const Text('Mis compras'),
                 onTap: () {
-                  Navigator.of(context).pop();
+                  Scaffold.of(context).closeEndDrawer();
                   context.go('/mis-compras');
                 },
               ),
@@ -95,7 +95,7 @@ class AppDrawer extends ConsumerWidget {
                 title: const Text('Panel administrativo'),
                 subtitle: Text('Rol: ${authState.rol}'),
                 onTap: () {
-                  Navigator.of(context).pop();
+                  Scaffold.of(context).closeEndDrawer();
                   context.push('/admin');
                 },
               ),
@@ -179,7 +179,7 @@ class AppDrawer extends ConsumerWidget {
                 leading: const Icon(Icons.logout, color: AppColors.error),
                 title: const Text('Cerrar sesión', style: TextStyle(color: AppColors.error)),
                 onTap: () {
-                  Navigator.of(context).pop();
+                  Scaffold.of(context).closeEndDrawer();
                   ref.read(authProvider.notifier).logout();
                 },
               )
@@ -188,7 +188,7 @@ class AppDrawer extends ConsumerWidget {
                 leading: const Icon(Icons.login),
                 title: const Text('Iniciar sesión'),
                 onTap: () {
-                  Navigator.of(context).pop();
+                  Scaffold.of(context).closeEndDrawer();
                   context.push('/login');
                 },
               ),
@@ -196,7 +196,7 @@ class AppDrawer extends ConsumerWidget {
                 leading: const Icon(Icons.person_add_outlined),
                 title: const Text('Crear cuenta'),
                 onTap: () {
-                  Navigator.of(context).pop();
+                  Scaffold.of(context).closeEndDrawer();
                   context.push('/registro');
                 },
               ),

@@ -4,34 +4,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../domain/model/auth_state.dart';
+import '../../domain/model/categoria.dart';
+import '../../domain/model/cuota_pago.dart';
 import '../../domain/model/direccion.dart';
 import '../../domain/model/inventario.dart';
+import '../../domain/model/marca.dart';
 import '../../domain/model/moto.dart';
 import '../../domain/model/proveedor.dart';
 import '../../domain/model/sucursal.dart';
 import '../../domain/model/sucursal_staff.dart';
+import '../../domain/model/venta_admin.dart';
 import '../providers/auth_provider.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/catalogo/catalogo_screen.dart';
 import '../screens/catalogo/moto_detail_screen.dart';
+import '../screens/compra/carrito_screen.dart';
+import '../screens/compra/compra_exitosa_screen.dart';
+import '../screens/compra/mis_compras_screen.dart';
+import '../screens/compra/compra_list_screen.dart';
+import '../screens/compra/compra_form_screen.dart';
 import '../screens/admin/admin_dashboard_screen.dart';
 import '../screens/admin/admin_motos_screen.dart';
 import '../screens/admin/moto_form_screen.dart';
+import '../screens/admin/admin_ventas_screen.dart';
+import '../screens/admin/venta_form_screen.dart';
+import '../screens/admin/admin_marcas_screen.dart';
+import '../screens/admin/marca_form_screen.dart';
+import '../screens/admin/admin_categorias_screen.dart';
+import '../screens/admin/categoria_form_screen.dart';
+import '../screens/admin/admin_financiamientos_screen.dart';
+import '../screens/admin/financiamiento_screen.dart';
+import '../screens/admin/cuota_form_screen.dart';
+import '../screens/favoritos/favoritos_screen.dart';
 import '../screens/inventario/inventario_list_screen.dart';
 import '../screens/inventario/inventario_form_screen.dart';
 import '../screens/sucursal/sucursal_list_screen.dart';
 import '../screens/sucursal/sucursal_form_screen.dart';
 import '../screens/proveedor/proveedor_list_screen.dart';
 import '../screens/proveedor/proveedor_form_screen.dart';
-import '../screens/compra/compra_list_screen.dart';
-import '../screens/compra/compra_form_screen.dart';
 import '../screens/direccion/direccion_list_screen.dart';
 import '../screens/direccion/direccion_form_screen.dart';
 import '../screens/sucursal_staff/sucursal_staff_list_screen.dart';
 import '../screens/sucursal_staff/sucursal_staff_form_screen.dart';
 import '../screens/logs_actividad/logs_actividad_list_screen.dart';
+import '../screens/perfil/perfil_screen.dart';
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
@@ -40,30 +58,6 @@ class _SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) => const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
-}
-
-class _PlaceholderScreen extends ConsumerWidget {
-  final String title;
-  const _PlaceholderScreen(this.title);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        actions: [
-          IconButton(
-            tooltip: 'Cerrar sesión',
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await ref.read(authProvider.notifier).logout();
-            },
-          ),
-        ],
-      ),
-      body: Center(child: Text(title, style: const TextStyle(fontSize: 18))),
-    );
-  }
 }
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -83,7 +77,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         return location == '/splash' ? null : '/splash';
       }
 
-      const privateRoutes = ['/mis-compras', '/perfil', '/admin', '/sucursales'];
+      const privateRoutes = [
+        '/mis-compras',
+        '/perfil',
+        '/admin',
+        '/carrito',
+        '/compra-exitosa',
+        '/sucursales',
+      ];
       final isPrivateRoute = privateRoutes.any((r) => location.startsWith(r));
       final isAuthRoute = location == '/login' || location == '/registro';
       final isSplash = location == '/splash';
@@ -133,15 +134,27 @@ final routerProvider = Provider<GoRouter>((ref) {
           motoId: int.parse(state.pathParameters['id']!),
         ),
       ),
+      GoRoute(
+        path: '/favoritos',
+        builder: (_, __) => const FavoritosScreen(),
+      ),
 
       // ── Cliente privado ────
       GoRoute(
+        path: '/carrito',
+        builder: (_, __) => const CarritoScreen(),
+      ),
+      GoRoute(
+        path: '/compra-exitosa',
+        builder: (_, state) => CompraExitosaScreen(venta: state.extra as VentaAdmin),
+      ),
+      GoRoute(
         path: '/mis-compras',
-        builder: (_, __) => const _PlaceholderScreen('Mis compras'),
+        builder: (_, __) => const MisComprasScreen(),
       ),
       GoRoute(
         path: '/perfil',
-        builder: (_, __) => const _PlaceholderScreen('Perfil'),
+        builder: (_, __) => const PerfilScreen(),
       ),
 
       // ── Inventario (admin / bodeguero) ─────
@@ -249,7 +262,62 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/admin/ventas',
-        builder: (_, __) => const _PlaceholderScreen('Ventas — módulo de Vicky S.'),
+        builder: (_, __) => const AdminVentasScreen(),
+      ),
+      GoRoute(
+        path: '/admin/ventas/editar',
+        builder: (_, state) => VentaFormScreen(ventaId: state.extra as int),
+      ),
+      GoRoute(
+        path: '/admin/marcas',
+        builder: (_, __) => const AdminMarcasScreen(),
+      ),
+      GoRoute(
+        path: '/admin/marcas/crear',
+        builder: (_, __) => const MarcaFormScreen(),
+      ),
+      GoRoute(
+        path: '/admin/marcas/editar',
+        builder: (_, state) => MarcaFormScreen(marca: state.extra as Marca),
+      ),
+      GoRoute(
+        path: '/admin/categorias',
+        builder: (_, __) => const AdminCategoriasScreen(),
+      ),
+      GoRoute(
+        path: '/admin/categorias/crear',
+        builder: (_, __) => const CategoriaFormScreen(),
+      ),
+      GoRoute(
+        path: '/admin/categorias/editar',
+        builder: (_, state) => CategoriaFormScreen(categoria: state.extra as Categoria),
+      ),
+
+      // ── Financiamientos ─────
+      GoRoute(
+        path: '/admin/financiamientos',
+        builder: (_, __) => const AdminFinanciamientosScreen(),
+      ),
+      GoRoute(
+        path: '/admin/financiamientos/detalle',
+        builder: (_, state) => FinanciamientoScreen(ventaId: state.extra as int),
+      ),
+      GoRoute(
+        path: '/admin/cuotas/crear',
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return CuotaFormScreen(financiamientoId: extra['financiamientoId'] as int);
+        },
+      ),
+      GoRoute(
+        path: '/admin/cuotas/editar',
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return CuotaFormScreen(
+            financiamientoId: extra['financiamientoId'] as int,
+            cuota: extra['cuota'] as CuotaPago,
+          );
+        },
       ),
     ],
   );

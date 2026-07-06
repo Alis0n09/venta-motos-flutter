@@ -157,6 +157,45 @@ class AdminDashboardScreen extends ConsumerWidget {
 
                 const SizedBox(height: 28),
 
+                // ── Catálogo (marcas / categorías) ─────────
+                Text('Catálogo', style: AppTextStyles.heading2),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => context.push('/admin/marcas'),
+                        icon: const Icon(Icons.branding_watermark_outlined),
+                        label: const Text('Marcas'),
+                        style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () => context.push('/admin/categorias'),
+                        icon: const Icon(Icons.category_outlined),
+                        label: const Text('Categorías'),
+                        style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () => context.push('/admin/financiamientos'),
+                    icon: const Icon(Icons.credit_score_outlined),
+                    label: const Text('Financiamientos'),
+                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                  ),
+                ),
+
+                const SizedBox(height: 28),
+
                 // ── Ventas recientes ──────────────────────
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
