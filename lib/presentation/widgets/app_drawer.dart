@@ -110,6 +110,56 @@ class AppDrawer extends ConsumerWidget {
                 },
               ),
 
+            if (authState.isAdmin || authState.isBodeguero)
+              ListTile(
+                leading: const Icon(Icons.local_shipping_outlined),
+                title: const Text('Proveedores'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/proveedores');
+                },
+              ),
+
+            if (authState.isAdmin || authState.isBodeguero)
+              ListTile(
+                leading: const Icon(Icons.shopping_cart_outlined),
+                title: const Text('Compras'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/compras');
+                },
+              ),
+
+            if (authState.isStaff)
+              ListTile(
+                leading: const Icon(Icons.location_on_outlined),
+                title: const Text('Direcciones'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/direcciones');
+                },
+              ),
+
+            if (authState.isStaff)
+              ListTile(
+                leading: const Icon(Icons.badge_outlined),
+                title: const Text('Asignaciones de staff'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/sucursal-staff');
+                },
+              ),
+
+            if (authState.isStaff)
+              ListTile(
+                leading: const Icon(Icons.history_outlined),
+                title: const Text('Logs de actividad'),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  context.push('/logs-actividad');
+                },
+              ),
+
             if (authState.isStaff)
               ListTile(
                 leading: const Icon(Icons.store_outlined),

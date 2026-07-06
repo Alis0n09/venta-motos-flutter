@@ -108,6 +108,18 @@ class AuthNotifier extends StateNotifier<AuthState> {
     _ref.invalidate(inventarioProvider);
   }
 
+  /// Cierra la sesión localmente cuando el backend rechaza tanto el access
+  /// token como el refresh token (p. ej. refresh expirado). A diferencia de
+  /// [logout], no llama al backend porque la sesión ya no es válida ahí.
+  Future<void> forceLogout(String message) async {
+    if (state.isUnauthenticated) return;
+    await _storage.clearSession();
+    _limpiarCachesDePerfil();
+    state = AuthState.unauthenticated(message);
+    _ref.invalidate(sucursalProvider);
+    _ref.invalidate(inventarioProvider);
+  }
+
   void clearError() {
     if (state.isUnauthenticated && state.error != null) {
       state = const AuthState.unauthenticated();

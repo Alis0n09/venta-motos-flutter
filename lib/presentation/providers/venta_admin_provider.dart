@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/error/api_exception.dart';
 import '../../data/remote/api/vendedor_remote_datasource.dart';
 import '../../data/remote/api/venta_remote_datasource.dart';
-import '../../domain/model/vendedor_simple.dart';
+import '../../domain/model/vendedor.dart';
 import '../../domain/model/venta.dart';
 import '../../domain/model/venta_admin.dart';
 
@@ -21,7 +21,7 @@ final ventaDetalleProvider = FutureProvider.autoDispose.family<VentaAdmin, int>(
 });
 
 /// Vendedores disponibles, para reasignar una venta.
-final vendedoresProvider = FutureProvider.autoDispose<List<VendedorSimple>>((ref) async {
+final vendedoresParaVentaProvider = FutureProvider.autoDispose<List<Vendedor>>((ref) async {
   final datasource = ref.watch(vendedorDatasourceProvider);
   return datasource.getVendedores();
 });

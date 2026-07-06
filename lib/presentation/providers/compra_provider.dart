@@ -2,47 +2,58 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/error/api_exception.dart';
-import '../../data/remote/api/venta_remote_datasource.dart';
-import '../../domain/model/carrito_item.dart';
-import '../../domain/model/venta_admin.dart';
-import 'carrito_provider.dart';
+import '../../data/remote/api/compra_remote_datasource.dart';
+import '../../domain/model/compra_state.dart';
 
-class ComprarNotifier extends StateNotifier<AsyncValue<VentaAdmin?>> {
-  final VentaRemoteDatasource _datasource;
-  final Ref _ref;
+class CompraNotifier extends StateNotifier<CompraState> {
+  final CompraRemoteDatasource _datasource;
 
-  ComprarNotifier(this._datasource, this._ref) : super(const AsyncValue.data(null));
+  CompraNotifier(this._datasource) : super(const CompraState()) {
+    loadCompras();
+  }
 
-  Future<VentaAdmin?> confirmar({required String metodoPago, required List<CarritoItem> items}) async {
-    if (items.isEmpty) return null;
-
-    state = const AsyncValue.loading();
+  Future<void> loadCompras() async {
+    state = state.copyWith(isLoading: true, error: null);
     try {
-      final venta = await _datasource.comprar(
-        metodoPago: metodoPago,
-        items: items
-            .map((i) => {'moto_id': i.motoId, 'cantidad': i.cantidad})
-            .toList(),
+      final compras = await _datasource.getCompras(
+        proveedor: state.proveedorSeleccionado,
+        sucursalDestino: state.sucursalSeleccionada,
       );
-      state = AsyncValue.data(venta);
-      _ref.read(carritoProvider.notifier).limpiar();
-      _ref.invalidate(misComprasProvider);
-      return venta;
-    } on ApiException catch (e, st) {
-      state = AsyncValue.error(e.message, st);
-      return null;
-    } catch (e, st) {
-      state = AsyncValue.error('Error inesperado al procesar la compra.', st);
-      return null;
+      if (!mounted) return;
+      state = state.copyWith(compras: compras, isLoading: false);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      state = state.copyWith(isLoading: false, error: e.message);
+    } catch (_) {
+      if (!mounted) return;
+      state = state.copyWith(isLoading: false, error: 'Error inesperado al cargar las compras.');
     }
+  }
+
+  void filtrarPorProveedor(int? proveedorId) {
+    if (proveedorId == null) {
+      state = state.copyWith(clearProveedor: true);
+    } else {
+      state = state.copyWith(proveedorSeleccionado: proveedorId);
+    }
+    loadCompras();
+  }
+
+  void filtrarPorSucursal(int? sucursalId) {
+    if (sucursalId == null) {
+      state = state.copyWith(clearSucursal: true);
+    } else {
+      state = state.copyWith(sucursalSeleccionada: sucursalId);
+    }
+    loadCompras();
+  }
+
+  Future<void> resetFiltros() {
+    state = state.copyWith(clearProveedor: true, clearSucursal: true);
+    return loadCompras();
   }
 }
 
-final comprarProvider = StateNotifierProvider<ComprarNotifier, AsyncValue<VentaAdmin?>>((ref) {
-  return ComprarNotifier(ref.watch(ventaDatasourceProvider), ref);
-});
-
-final misComprasProvider = FutureProvider<List<VentaAdmin>>((ref) async {
-  final datasource = ref.watch(ventaDatasourceProvider);
-  return datasource.getMisCompras();
+final compraProvider = StateNotifierProvider.autoDispose<CompraNotifier, CompraState>((ref) {
+  return CompraNotifier(ref.watch(compraDatasourceProvider));
 });

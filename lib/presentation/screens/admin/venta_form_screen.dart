@@ -78,7 +78,7 @@ class _VentaFormScreenState extends ConsumerState<VentaFormScreen> {
   @override
   Widget build(BuildContext context) {
     final ventaAsync = ref.watch(ventaDetalleProvider(widget.ventaId));
-    final vendedoresAsync = ref.watch(vendedoresProvider);
+    final vendedoresAsync = ref.watch(vendedoresParaVentaProvider);
     final adminState = ref.watch(ventaAdminProvider);
     final authState = ref.watch(authProvider);
     final isLoading = adminState.isLoading;
@@ -173,7 +173,10 @@ class _VentaFormScreenState extends ConsumerState<VentaFormScreen> {
                       initialValue: valorSeguro,
                       hint: const Text('Sin asignar'),
                       items: vendedores
-                          .map((v) => DropdownMenuItem(value: v.id, child: Text('${v.nombreCompleto} (${v.rol})')))
+                          .map((v) => DropdownMenuItem(
+                                value: v.id,
+                                child: Text('${v.nombre} ${v.apellido} (${v.rol})'),
+                              ))
                           .toList(),
                       onChanged: isLoading ? null : (v) => setState(() => _vendedorSeleccionado = v),
                     );

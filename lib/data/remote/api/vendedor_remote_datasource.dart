@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/error/api_exception.dart';
-import '../../../domain/model/vendedor_simple.dart';
+import '../../../domain/model/vendedor.dart';
 import 'dio_client.dart';
 
 abstract class VendedorRemoteDatasource {
-  Future<List<VendedorSimple>> getVendedores();
+  Future<List<Vendedor>> getVendedores();
 }
 
 class VendedorRemoteDatasourceImpl implements VendedorRemoteDatasource {
@@ -14,12 +14,12 @@ class VendedorRemoteDatasourceImpl implements VendedorRemoteDatasource {
   VendedorRemoteDatasourceImpl(this._dio);
 
   @override
-  Future<List<VendedorSimple>> getVendedores() async {
+  Future<List<Vendedor>> getVendedores() async {
     try {
-      final res = await _dio.get('/vendedores/', queryParameters: {'page_size': 100});
+      final res = await _dio.get('/vendedores/', queryParameters: {'page_size': 200});
       final data = res.data as Map<String, dynamic>;
       return (data['results'] as List)
-          .map((e) => VendedorSimple.fromJson(e as Map<String, dynamic>))
+          .map((e) => Vendedor.fromJson(e as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
       throw ApiException.fromDioError(e);

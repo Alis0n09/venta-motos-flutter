@@ -1,34 +1,23 @@
-// lib/presentation/providers/inventario_admin_provider.dart
+// lib/presentation/providers/direccion_admin_provider.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/error/api_exception.dart';
-import '../../data/remote/api/inventario_remote_datasource.dart';
-import 'catalog_provider.dart';
-import 'inventario_provider.dart';
+import '../../data/remote/api/direccion_remote_datasource.dart';
+import 'direccion_provider.dart';
 
-// El stock de Moto se calcula en el backend a partir de Inventario, así que
-// cada CRUD exitoso debe refrescar los providers que muestran ese stock en
-// catálogo/detalle, o quedan mostrando datos viejos hasta reiniciar la app.
-void _refrescarStockDeMotos(Ref ref) {
-  ref.invalidate(recomendadasProvider);
-  ref.read(catalogProvider.notifier).loadMotos();
-  ref.invalidate(motoDetailProvider);
-}
-
-class InventarioAdminNotifier extends StateNotifier<AsyncValue<void>> {
-  final InventarioRemoteDatasource _datasource;
+class DireccionAdminNotifier extends StateNotifier<AsyncValue<void>> {
+  final DireccionRemoteDatasource _datasource;
   final Ref _ref;
 
-  InventarioAdminNotifier(this._datasource, this._ref) : super(const AsyncValue.data(null));
+  DireccionAdminNotifier(this._datasource, this._ref) : super(const AsyncValue.data(null));
 
   Future<bool> crear(Map<String, dynamic> payload) async {
     state = const AsyncValue.loading();
     try {
-      await _datasource.createInventario(payload);
+      await _datasource.createDireccion(payload);
       if (!mounted) return true;
       state = const AsyncValue.data(null);
-      _ref.read(inventarioProvider.notifier).loadInventarios();
-      _refrescarStockDeMotos(_ref);
+      _ref.read(direccionProvider.notifier).loadDirecciones();
       return true;
     } on ApiException catch (e, st) {
       if (!mounted) return false;
@@ -44,11 +33,10 @@ class InventarioAdminNotifier extends StateNotifier<AsyncValue<void>> {
   Future<bool> editar(int id, Map<String, dynamic> payload) async {
     state = const AsyncValue.loading();
     try {
-      await _datasource.updateInventario(id, payload);
+      await _datasource.updateDireccion(id, payload);
       if (!mounted) return true;
       state = const AsyncValue.data(null);
-      _ref.read(inventarioProvider.notifier).loadInventarios();
-      _refrescarStockDeMotos(_ref);
+      _ref.read(direccionProvider.notifier).loadDirecciones();
       return true;
     } on ApiException catch (e, st) {
       if (!mounted) return false;
@@ -64,11 +52,10 @@ class InventarioAdminNotifier extends StateNotifier<AsyncValue<void>> {
   Future<bool> eliminar(int id) async {
     state = const AsyncValue.loading();
     try {
-      await _datasource.deleteInventario(id);
+      await _datasource.deleteDireccion(id);
       if (!mounted) return true;
       state = const AsyncValue.data(null);
-      _ref.read(inventarioProvider.notifier).loadInventarios();
-      _refrescarStockDeMotos(_ref);
+      _ref.read(direccionProvider.notifier).loadDirecciones();
       return true;
     } on ApiException catch (e, st) {
       if (!mounted) return false;
@@ -82,7 +69,7 @@ class InventarioAdminNotifier extends StateNotifier<AsyncValue<void>> {
   }
 }
 
-final inventarioAdminProvider =
-    StateNotifierProvider.autoDispose<InventarioAdminNotifier, AsyncValue<void>>((ref) {
-  return InventarioAdminNotifier(ref.watch(inventarioDatasourceProvider), ref);
+final direccionAdminProvider =
+    StateNotifierProvider.autoDispose<DireccionAdminNotifier, AsyncValue<void>>((ref) {
+  return DireccionAdminNotifier(ref.watch(direccionDatasourceProvider), ref);
 });

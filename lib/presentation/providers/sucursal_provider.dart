@@ -26,10 +26,13 @@ class SucursalNotifier extends StateNotifier<SucursalState> {
         search: state.search,
         ciudad: state.ciudadSeleccionada,
       );
+      if (!mounted) return;
       state = state.copyWith(sucursales: sucursales, isLoading: false);
     } on ApiException catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: e.message);
     } catch (_) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: 'Error inesperado al cargar las sucursales.');
     }
   }

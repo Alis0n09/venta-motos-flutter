@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../providers/carrito_provider.dart';
-import '../../providers/compra_provider.dart';
+import '../../providers/comprar_provider.dart';
 
 class CarritoScreen extends ConsumerStatefulWidget {
   const CarritoScreen({super.key});
