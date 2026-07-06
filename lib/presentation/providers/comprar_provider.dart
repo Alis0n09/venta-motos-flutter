@@ -6,6 +6,8 @@ import '../../data/remote/api/venta_remote_datasource.dart';
 import '../../domain/model/carrito_item.dart';
 import '../../domain/model/venta_admin.dart';
 import 'carrito_provider.dart';
+import 'catalog_provider.dart';
+import 'inventario_provider.dart';
 
 class ComprarNotifier extends StateNotifier<AsyncValue<VentaAdmin?>> {
   final VentaRemoteDatasource _datasource;
@@ -24,14 +26,21 @@ class ComprarNotifier extends StateNotifier<AsyncValue<VentaAdmin?>> {
             .map((i) => {'moto_id': i.motoId, 'cantidad': i.cantidad})
             .toList(),
       );
+      if (!mounted) return venta;
       state = AsyncValue.data(venta);
       _ref.read(carritoProvider.notifier).limpiar();
       _ref.invalidate(misComprasProvider);
+      _ref.invalidate(recomendadasProvider);
+      _ref.read(catalogProvider.notifier).loadMotos();
+      _ref.invalidate(motoDetailProvider);
+      _ref.invalidate(inventarioProvider);
       return venta;
     } on ApiException catch (e, st) {
+      if (!mounted) return null;
       state = AsyncValue.error(e.message, st);
       return null;
     } catch (e, st) {
+      if (!mounted) return null;
       state = AsyncValue.error('Error inesperado al procesar la compra.', st);
       return null;
     }

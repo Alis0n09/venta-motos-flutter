@@ -22,10 +22,13 @@ class InventarioNotifier extends StateNotifier<InventarioState> {
         cantidadMax: state.cantidadMax,
         search: state.search,
       );
+      if (!mounted) return;
       state = state.copyWith(inventarios: inventarios, isLoading: false);
     } on ApiException catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: e.message);
     } catch (_) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: 'Error inesperado al cargar el inventario.');
     }
   }

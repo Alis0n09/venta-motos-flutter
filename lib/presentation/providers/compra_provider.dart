@@ -19,10 +19,13 @@ class CompraNotifier extends StateNotifier<CompraState> {
         proveedor: state.proveedorSeleccionado,
         sucursalDestino: state.sucursalSeleccionada,
       );
+      if (!mounted) return;
       state = state.copyWith(compras: compras, isLoading: false);
     } on ApiException catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: e.message);
     } catch (_) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: 'Error inesperado al cargar las compras.');
     }
   }

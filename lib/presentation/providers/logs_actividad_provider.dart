@@ -28,10 +28,13 @@ class LogsActividadNotifier extends StateNotifier<LogsActividadState> {
         search: state.search,
         ordering: '-fecha',
       );
+      if (!mounted) return;
       state = state.copyWith(logs: logs, isLoading: false);
     } on ApiException catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: e.message);
     } catch (_) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: 'Error inesperado al cargar los logs.');
     }
   }

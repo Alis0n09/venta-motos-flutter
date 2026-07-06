@@ -19,10 +19,13 @@ class ProveedorNotifier extends StateNotifier<ProveedorState> {
         search: state.search,
         pais: state.paisSeleccionado,
       );
+      if (!mounted) return;
       state = state.copyWith(proveedores: proveedores, isLoading: false);
     } on ApiException catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: e.message);
     } catch (_) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: 'Error inesperado al cargar los proveedores.');
     }
   }

@@ -15,13 +15,16 @@ class DireccionAdminNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
     try {
       await _datasource.createDireccion(payload);
+      if (!mounted) return true;
       state = const AsyncValue.data(null);
       _ref.read(direccionProvider.notifier).loadDirecciones();
       return true;
     } on ApiException catch (e, st) {
+      if (!mounted) return false;
       state = AsyncValue.error(e, st);
       return false;
     } catch (e, st) {
+      if (!mounted) return false;
       state = AsyncValue.error(const ApiException('Error inesperado. Intenta de nuevo.'), st);
       return false;
     }
@@ -31,13 +34,16 @@ class DireccionAdminNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
     try {
       await _datasource.updateDireccion(id, payload);
+      if (!mounted) return true;
       state = const AsyncValue.data(null);
       _ref.read(direccionProvider.notifier).loadDirecciones();
       return true;
     } on ApiException catch (e, st) {
+      if (!mounted) return false;
       state = AsyncValue.error(e, st);
       return false;
     } catch (e, st) {
+      if (!mounted) return false;
       state = AsyncValue.error(const ApiException('Error inesperado. Intenta de nuevo.'), st);
       return false;
     }
@@ -47,13 +53,16 @@ class DireccionAdminNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
     try {
       await _datasource.deleteDireccion(id);
+      if (!mounted) return true;
       state = const AsyncValue.data(null);
       _ref.read(direccionProvider.notifier).loadDirecciones();
       return true;
     } on ApiException catch (e, st) {
+      if (!mounted) return false;
       state = AsyncValue.error(e, st);
       return false;
     } catch (e, st) {
+      if (!mounted) return false;
       state = AsyncValue.error(const ApiException('Error inesperado. Intenta de nuevo.'), st);
       return false;
     }

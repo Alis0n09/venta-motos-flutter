@@ -18,10 +18,13 @@ class SucursalStaffNotifier extends StateNotifier<SucursalStaffState> {
       final asignaciones = await _datasource.getSucursalStaff(
         sucursal: state.sucursalSeleccionada,
       );
+      if (!mounted) return;
       state = state.copyWith(asignaciones: asignaciones, isLoading: false);
     } on ApiException catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: e.message);
     } catch (_) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: 'Error inesperado al cargar las asignaciones.');
     }
   }

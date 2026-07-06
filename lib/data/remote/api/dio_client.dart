@@ -4,14 +4,22 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/app_config.dart';
+import '../../../presentation/providers/auth_provider.dart';
 import '../../local/secure_storage.dart';
 
 // ── Interceptor de autenticación ──────────────────────────────
 class _AuthInterceptor extends Interceptor {
   final SecureStorage _storage;
   final Dio _dio;
+  final Ref _ref;
 
-  _AuthInterceptor(this._storage, this._dio);
+  _AuthInterceptor(this._storage, this._dio, this._ref);
+
+  Future<void> _forceLogout() {
+    return _ref.read(authProvider.notifier).forceLogout(
+          'Tu sesión expiró, por favor inicia sesión de nuevo.',
+        );
+  }
 
   @override
   void onRequest(
@@ -36,14 +44,14 @@ class _AuthInterceptor extends Interceptor {
     }
 
     if (err.requestOptions.path.contains('/auth/token/refresh/')) {
-      await _storage.clearSession();
+      await _forceLogout();
       handler.next(err);
       return;
     }
 
     // Evitar bucle infinito
     if (err.requestOptions.extra['_retry'] == true) {
-      await _storage.clearSession();
+      await _forceLogout();
       handler.next(err);
       return;
     }
@@ -51,7 +59,7 @@ class _AuthInterceptor extends Interceptor {
     // Intentar renovar el token
     final refresh = await _storage.getRefresh();
     if (refresh == null || refresh.isEmpty) {
-      await _storage.clearSession();
+      await _forceLogout();
       handler.next(err);
       return;
     }
@@ -79,14 +87,14 @@ class _AuthInterceptor extends Interceptor {
       final retryResponse = await _dio.fetch(retryOptions);
       handler.resolve(retryResponse);
     } on DioException {
-      await _storage.clearSession();
+      await _forceLogout();
       handler.next(err);
     }
   }
 }
 
 // ── Fábrica del cliente Dio ────────────────────────────────────
-Dio createDioClient(SecureStorage storage) {
+Dio createDioClient(SecureStorage storage, Ref ref) {
   final dio = Dio(
     BaseOptions(
       baseUrl: '${AppConfig.apiBaseUrl}/',
@@ -97,7 +105,7 @@ Dio createDioClient(SecureStorage storage) {
   );
 
   dio.interceptors.addAll([
-    _AuthInterceptor(storage, dio),
+    _AuthInterceptor(storage, dio, ref),
     LogInterceptor(
       requestBody: true,
       responseBody: true,
@@ -111,5 +119,5 @@ Dio createDioClient(SecureStorage storage) {
 // ── Provider global de Dio ────────────────────────────────────
 final dioProvider = Provider<Dio>((ref) {
   final storage = ref.watch(secureStorageProvider);
-  return createDioClient(storage);
+  return createDioClient(storage, ref);
 });

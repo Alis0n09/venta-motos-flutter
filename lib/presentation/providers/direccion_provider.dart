@@ -20,10 +20,13 @@ class DireccionNotifier extends StateNotifier<DireccionState> {
         ciudad: state.ciudadSeleccionada,
         provincia: state.provinciaSeleccionada,
       );
+      if (!mounted) return;
       state = state.copyWith(direcciones: direcciones, isLoading: false);
     } on ApiException catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: e.message);
     } catch (_) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, error: 'Error inesperado al cargar las direcciones.');
     }
   }

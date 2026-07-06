@@ -5,6 +5,7 @@ import '../../core/error/api_exception.dart';
 import '../../data/remote/api/compra_remote_datasource.dart';
 import '../../data/remote/api/detalle_compra_remote_datasource.dart';
 import '../../data/remote/api/inventario_remote_datasource.dart';
+import 'catalog_provider.dart';
 import 'compra_provider.dart';
 import 'inventario_provider.dart';
 
@@ -75,6 +76,7 @@ class CompraRegistroNotifier extends StateNotifier<AsyncValue<CompraRegistroResu
         'sucursal_destino': sucursalId,
         'total': total,
       });
+      if (!mounted) return true;
 
       for (final linea in lineas) {
         await _detalleDatasource.createDetalleCompra({
@@ -83,11 +85,14 @@ class CompraRegistroNotifier extends StateNotifier<AsyncValue<CompraRegistroResu
           'cantidad': linea.cantidad,
           'precio_costo': linea.precioCosto,
         });
+        if (!mounted) return true;
       }
     } on ApiException catch (e, st) {
+      if (!mounted) return false;
       state = AsyncValue.error(e, st);
       return false;
     } catch (e, st) {
+      if (!mounted) return false;
       state = AsyncValue.error(const ApiException('Error inesperado. Intenta de nuevo.'), st);
       return false;
     }
@@ -104,6 +109,7 @@ class CompraRegistroNotifier extends StateNotifier<AsyncValue<CompraRegistroResu
           moto: linea.motoId,
           sucursal: sucursalId,
         );
+        if (!mounted) return true;
         if (existentes.isNotEmpty) {
           final actual = existentes.first;
           await _inventarioDatasource.updateInventario(actual.id, {
@@ -117,10 +123,13 @@ class CompraRegistroNotifier extends StateNotifier<AsyncValue<CompraRegistroResu
             'ubicacion_bodega': '',
           });
         }
+        if (!mounted) return true;
         motosActualizadas.add(linea.motoNombre);
       } on ApiException catch (e) {
+        if (!mounted) return true;
         motosConError.add(LineaConError(motoNombre: linea.motoNombre, mensaje: e.message));
       } catch (_) {
+        if (!mounted) return true;
         motosConError.add(
           LineaConError(
             motoNombre: linea.motoNombre,
@@ -135,6 +144,9 @@ class CompraRegistroNotifier extends StateNotifier<AsyncValue<CompraRegistroResu
     );
     _ref.read(compraProvider.notifier).loadCompras();
     _ref.read(inventarioProvider.notifier).loadInventarios();
+    _ref.invalidate(recomendadasProvider);
+    _ref.read(catalogProvider.notifier).loadMotos();
+    _ref.invalidate(motoDetailProvider);
     return true;
   }
 }
