@@ -20,7 +20,7 @@ class AppDrawer extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── Header del drawer ──────────────────────
+            // ── Header del drawer (fijo arriba) ─────────
             Padding(
               padding: const EdgeInsets.all(20),
               child: Row(
@@ -59,121 +59,125 @@ class AppDrawer extends ConsumerWidget {
 
             const Divider(height: 32),
 
-            // ── Opciones comunes a todos ────────────────
-            ListTile(
-              leading: const Icon(Icons.favorite_border),
-              title: const Text('Mis favoritos'),
-              onTap: () {
-                Scaffold.of(context).closeEndDrawer();
-                context.push('/favoritos');
-              },
+            // ── Opciones del menú (esto sí puede desplazarse) ──
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.favorite_border),
+                    title: const Text('Mis favoritos'),
+                    onTap: () {
+                      Scaffold.of(context).closeEndDrawer();
+                      context.push('/favoritos');
+                    },
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.build_outlined),
+                    title: const Text('Agendar mantenimiento'),
+                    onTap: () {
+                      Scaffold.of(context).closeEndDrawer();
+                      context.push('/mantenimiento');
+                    },
+                  ),
+
+                  if (authState.isAuthenticated && !authState.isStaff)
+                    ListTile(
+                      leading: const Icon(Icons.receipt_long_outlined),
+                      title: const Text('Mis compras'),
+                      onTap: () {
+                        Scaffold.of(context).closeEndDrawer();
+                        context.go('/mis-compras');
+                      },
+                    ),
+
+                  if (authState.isStaff)
+                    ListTile(
+                      leading: const Icon(Icons.admin_panel_settings_outlined),
+                      title: const Text('Panel administrativo'),
+                      subtitle: Text('Rol: ${authState.rol}'),
+                      onTap: () {
+                        Scaffold.of(context).closeEndDrawer();
+                        context.push('/admin');
+                      },
+                    ),
+
+                  if (authState.isAdmin || authState.isBodeguero)
+                    ListTile(
+                      leading: const Icon(Icons.warehouse_outlined),
+                      title: const Text('Inventario'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/inventario');
+                      },
+                    ),
+
+                  if (authState.isAdmin || authState.isBodeguero)
+                    ListTile(
+                      leading: const Icon(Icons.local_shipping_outlined),
+                      title: const Text('Proveedores'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/proveedores');
+                      },
+                    ),
+
+                  if (authState.isAdmin || authState.isBodeguero)
+                    ListTile(
+                      leading: const Icon(Icons.shopping_cart_outlined),
+                      title: const Text('Compras'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/compras');
+                      },
+                    ),
+
+                  if (authState.isStaff)
+                    ListTile(
+                      leading: const Icon(Icons.location_on_outlined),
+                      title: const Text('Direcciones'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/direcciones');
+                      },
+                    ),
+
+                  if (authState.isStaff)
+                    ListTile(
+                      leading: const Icon(Icons.badge_outlined),
+                      title: const Text('Asignaciones de staff'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/sucursal-staff');
+                      },
+                    ),
+
+                  if (authState.isStaff)
+                    ListTile(
+                      leading: const Icon(Icons.history_outlined),
+                      title: const Text('Logs de actividad'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/logs-actividad');
+                      },
+                    ),
+
+                  if (authState.isStaff)
+                    ListTile(
+                      leading: const Icon(Icons.store_outlined),
+                      title: const Text('Sucursales'),
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        context.push('/sucursales');
+                      },
+                    ),
+                ],
+              ),
             ),
-            ListTile(
-              leading: const Icon(Icons.build_outlined),
-              title: const Text('Agendar mantenimiento'),
-              onTap: () {
-                Scaffold.of(context).closeEndDrawer();
-                // TODO: context.push('/mantenimiento') cuando exista
-              },
-            ),
 
-            // ── Solo cliente logueado ────────────────────
-            if (authState.isAuthenticated && !authState.isStaff)
-              ListTile(
-                leading: const Icon(Icons.receipt_long_outlined),
-                title: const Text('Mis compras'),
-                onTap: () {
-                  Scaffold.of(context).closeEndDrawer();
-                  context.go('/mis-compras');
-                },
-              ),
-
-            // ── Solo staff ────────────────────────────────
-            if (authState.isStaff)
-              ListTile(
-                leading: const Icon(Icons.admin_panel_settings_outlined),
-                title: const Text('Panel administrativo'),
-                subtitle: Text('Rol: ${authState.rol}'),
-                onTap: () {
-                  Scaffold.of(context).closeEndDrawer();
-                  context.push('/admin');
-                },
-              ),
-
-            if (authState.isAdmin || authState.isBodeguero)
-              ListTile(
-                leading: const Icon(Icons.warehouse_outlined),
-                title: const Text('Inventario'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/inventario');
-                },
-              ),
-
-            if (authState.isAdmin || authState.isBodeguero)
-              ListTile(
-                leading: const Icon(Icons.local_shipping_outlined),
-                title: const Text('Proveedores'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/proveedores');
-                },
-              ),
-
-            if (authState.isAdmin || authState.isBodeguero)
-              ListTile(
-                leading: const Icon(Icons.shopping_cart_outlined),
-                title: const Text('Compras'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/compras');
-                },
-              ),
-
-            if (authState.isStaff)
-              ListTile(
-                leading: const Icon(Icons.location_on_outlined),
-                title: const Text('Direcciones'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/direcciones');
-                },
-              ),
-
-            if (authState.isStaff)
-              ListTile(
-                leading: const Icon(Icons.badge_outlined),
-                title: const Text('Asignaciones de staff'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/sucursal-staff');
-                },
-              ),
-
-            if (authState.isStaff)
-              ListTile(
-                leading: const Icon(Icons.history_outlined),
-                title: const Text('Logs de actividad'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/logs-actividad');
-                },
-              ),
-
-            if (authState.isStaff)
-              ListTile(
-                leading: const Icon(Icons.store_outlined),
-                title: const Text('Sucursales'),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  context.push('/sucursales');
-                },
-              ),
-
-            const Spacer(),
             const Divider(height: 1),
 
-            // ── Pie: login/logout ─────────────────────────
+            // ── Pie: login/logout (fijo abajo) ────────────
             if (authState.isAuthenticated)
               ListTile(
                 leading: const Icon(Icons.logout, color: AppColors.error),

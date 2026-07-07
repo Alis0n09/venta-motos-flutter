@@ -32,6 +32,8 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
     String? direccionActual,
   }) async {
     final cuenta = ref.read(perfilCuentaProvider).value;
+    final nombreController = TextEditingController(text: cuenta?.firstName ?? '');
+    final apellidoController = TextEditingController(text: cuenta?.lastName ?? '');
     final emailController = TextEditingController(text: cuenta?.email ?? '');
     final telefonoController = TextEditingController(text: telefonoActual ?? '');
     final direccionController = TextEditingController(text: direccionActual ?? '');
@@ -44,34 +46,50 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
           final isLoading = ref.watch(perfilNotifierProvider).isLoading;
           return AlertDialog(
             title: const Text('Datos personales'),
-            content: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: emailController,
-                    enabled: !isLoading,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Correo'),
-                    validator: (v) => (v == null || !v.contains('@')) ? 'Correo inválido' : null,
-                  ),
-                  if (!esStaff) ...[
-                    const SizedBox(height: 12),
+            content: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     TextFormField(
-                      controller: telefonoController,
+                      controller: nombreController,
                       enabled: !isLoading,
-                      keyboardType: TextInputType.phone,
-                      decoration: const InputDecoration(labelText: 'Teléfono'),
+                      decoration: const InputDecoration(labelText: 'Nombre'),
+                      validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
-                      controller: direccionController,
+                      controller: apellidoController,
                       enabled: !isLoading,
-                      decoration: const InputDecoration(labelText: 'Dirección'),
+                      decoration: const InputDecoration(labelText: 'Apellido'),
+                      validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido' : null,
                     ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: emailController,
+                      enabled: !isLoading,
+                      keyboardType: TextInputType.emailAddress,
+                      decoration: const InputDecoration(labelText: 'Correo'),
+                      validator: (v) => (v == null || !v.contains('@')) ? 'Correo inválido' : null,
+                    ),
+                    if (!esStaff) ...[
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: telefonoController,
+                        enabled: !isLoading,
+                        keyboardType: TextInputType.phone,
+                        decoration: const InputDecoration(labelText: 'Teléfono'),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: direccionController,
+                        enabled: !isLoading,
+                        decoration: const InputDecoration(labelText: 'Dirección'),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
             actions: [
@@ -87,6 +105,8 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
 
                         final exitoCuenta = await ref.read(perfilNotifierProvider.notifier).guardarCuenta({
                           'email': emailController.text.trim(),
+                          'first_name': nombreController.text.trim(),
+                          'last_name': apellidoController.text.trim(),
                         });
 
                         var exitoCliente = true;
@@ -185,17 +205,40 @@ class _PerfilScreenState extends ConsumerState<PerfilScreen> {
   }
 
   Widget _buildStaff(cuenta) {
+    final nombreCompleto = (cuenta.firstName != null && cuenta.firstName!.isNotEmpty)
+        ? '${cuenta.firstName} ${cuenta.lastName ?? ''}'.trim()
+        : cuenta.username;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildBanner(username: cuenta.username, subtitulo: cuenta.username),
+          _buildBanner(username: cuenta.username, subtitulo: nombreCompleto),
           const SizedBox(height: 12),
           Text(
             'Rol: ${ref.read(authProvider).rol}',
             style: AppTextStyles.bodySecondary,
           ),
+
+          const SizedBox(height: 24),
+          Text('DATOS PERSONALES', style: AppTextStyles.caption),
+          const SizedBox(height: 12),
+
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  _InfoFila(label: 'Nombre completo', valor: nombreCompleto),
+                  const Divider(height: 20),
+                  _InfoFila(label: 'Correo', valor: cuenta.email),
+                ],
+              ),
+            ),
+          ),
+
           const SizedBox(height: 24),
           Text('CUENTA', style: AppTextStyles.caption),
           const SizedBox(height: 12),
