@@ -99,7 +99,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 const SizedBox(height: 20),
 
-                // ── Imagen destacada ──────────────────────
                 ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Image.asset(
@@ -118,7 +117,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 const SizedBox(height: 28),
 
-                // ── Campo correo/usuario ──────────────────
                 Text('USUARIO', style: AppTextStyles.caption),
                 const SizedBox(height: 6),
                 TextFormField(
@@ -135,7 +133,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
                 const SizedBox(height: 16),
 
-                // ── Campo contraseña ──────────────────────
                 Text('CONTRASEÑA', style: AppTextStyles.caption),
                 const SizedBox(height: 6),
                 TextFormField(
@@ -168,9 +165,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: isLoading ? null : () {
-                      // TODO: pantalla de recuperar contraseña (fuera del alcance del proyecto por ahora)
-                    },
+                    onPressed: isLoading ? null : () => context.push('/recuperar-password'),
                     child: const Text(
                       '¿Olvidaste tu contraseña?',
                       style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600),

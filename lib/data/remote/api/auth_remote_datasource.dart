@@ -20,6 +20,12 @@ abstract class AuthRemoteDatasource {
     String? telefono,
   });
   Future<void> logout();
+  Future<void> solicitarResetPassword(String username);
+  Future<void> confirmarResetPassword({
+    required String codigo,
+    required String newPassword,
+    required String newPassword2,
+  });
 }
 
 class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
@@ -98,9 +104,34 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
         await _dio.post('/auth/logout/', data: {'refresh': refresh});
       }
     } catch (_) {
-      // si el logout falla en el servidor, limpiamos localmente igual
     } finally {
       await _storage.clearSession();
+    }
+  }
+
+  @override
+  Future<void> solicitarResetPassword(String username) async {
+    try {
+      await _dio.post('/auth/password-reset/', data: {'username': username});
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
+    }
+  }
+
+  @override
+  Future<void> confirmarResetPassword({
+    required String codigo,
+    required String newPassword,
+    required String newPassword2,
+  }) async {
+    try {
+      await _dio.post('/auth/password-reset/confirm/', data: {
+        'codigo': codigo,
+        'new_password': newPassword,
+        'new_password2': newPassword2,
+      });
+    } on DioException catch (e) {
+      throw ApiException.fromDioError(e);
     }
   }
 }

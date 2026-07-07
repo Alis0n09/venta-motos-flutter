@@ -58,6 +58,8 @@ import '../screens/admin/repuesto_form_screen.dart';
 import '../../domain/model/repuesto.dart';
 import '../screens/mantenimiento/mantenimiento_screen.dart';
 import '../screens/admin/admin_historial_precios_screen.dart';
+import '../screens/auth/solicitar_reset_screen.dart';
+import '../screens/auth/confirmar_reset_screen.dart';
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
@@ -127,6 +129,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       // ── Auth ─────
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
       GoRoute(path: '/registro', builder: (_, __) => const RegisterScreen()),
+      GoRoute(path: '/recuperar-password', builder: (_, __) => const SolicitarResetScreen()),
+      GoRoute(path: '/recuperar-password/confirmar', builder: (_, __) => const ConfirmarResetScreen()),
 
       // ── Público ─────
       GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
