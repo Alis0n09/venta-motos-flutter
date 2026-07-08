@@ -6,6 +6,8 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/perfil_provider.dart';
+import 'package:go_router/go_router.dart';
+import '../../providers/notificacion_cliente_provider.dart';
 
 class PerfilScreen extends ConsumerStatefulWidget {
   const PerfilScreen({super.key});

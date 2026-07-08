@@ -7,6 +7,7 @@ import '../../../theme/app_colors.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/catalog_provider.dart';
+import '../../providers/notificacion_cliente_provider.dart';
 import '../../widgets/app_drawer.dart';
 import '../../widgets/moto_card.dart';
 
@@ -43,6 +44,10 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Text('Victal Speed', style: AppTextStyles.heading2),
                   const Spacer(),
+                  if (authState.isCliente) ...[
+                    _CampanaNotificaciones(noLeidas: ref.watch(notificacionesNoLeidasProvider)),
+                    const SizedBox(width: 12),
+                  ],
                   Builder(
                     builder: (context) => GestureDetector(
                       onTap: () => Scaffold.of(context).openEndDrawer(),
@@ -185,6 +190,47 @@ class HomeScreen extends ConsumerWidget {
           NavigationDestination(icon: Icon(Icons.search), label: 'Buscar'),
           NavigationDestination(icon: Icon(Icons.favorite_border), label: 'Favoritos'),
           NavigationDestination(icon: Icon(Icons.person_outline), label: 'Perfil'),
+        ],
+      ),
+    );
+  }
+}
+
+class _CampanaNotificaciones extends StatelessWidget {
+  final int noLeidas;
+
+  const _CampanaNotificaciones({required this.noLeidas});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => context.push('/mis-notificaciones'),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: AppColors.accentLight,
+            child: Icon(
+              noLeidas > 0 ? Icons.notifications_active : Icons.notifications_none,
+              color: AppColors.accent,
+            ),
+          ),
+          if (noLeidas > 0)
+            Positioned(
+              top: -2,
+              right: -2,
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
+                child: Text(
+                  noLeidas > 9 ? '9+' : '$noLeidas',
+                  style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
         ],
       ),
     );
