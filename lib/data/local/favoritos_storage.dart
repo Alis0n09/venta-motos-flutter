@@ -9,16 +9,18 @@ class FavoritosStorage {
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
-  static const _key = 'venta_motos_app:favoritos';
+  /// [userId] identifica de quién son los favoritos, para que cada cuenta
+  /// tenga su propio cajón y nunca se mezclen entre usuarios del mismo equipo.
+  String _keyFor(int userId) => 'venta_motos_app:favoritos:$userId';
 
-  Future<Set<int>> getFavoritos() async {
-    final raw = await _storage.read(key: _key);
+  Future<Set<int>> getFavoritos(int userId) async {
+    final raw = await _storage.read(key: _keyFor(userId));
     if (raw == null || raw.isEmpty) return {};
     return raw.split(',').map(int.parse).toSet();
   }
 
-  Future<void> saveFavoritos(Set<int> ids) async {
-    await _storage.write(key: _key, value: ids.join(','));
+  Future<void> saveFavoritos(int userId, Set<int> ids) async {
+    await _storage.write(key: _keyFor(userId), value: ids.join(','));
   }
 }
 

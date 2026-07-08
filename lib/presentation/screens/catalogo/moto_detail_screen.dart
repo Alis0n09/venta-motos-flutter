@@ -144,6 +144,13 @@ class MotoDetailScreen extends ConsumerWidget {
                 ? 'Quitar de favoritos'
                 : 'Agregar a favoritos',
             onPressed: () {
+              if (!authState.isAuthenticated) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Inicia sesión para guardar favoritos')),
+                );
+                context.push('/login');
+                return;
+              }
               ref.read(favoritosProvider.notifier).toggle(motoId);
             },
             icon: Icon(

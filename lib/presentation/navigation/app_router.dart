@@ -60,6 +60,9 @@ import '../screens/mantenimiento/mantenimiento_screen.dart';
 import '../screens/admin/admin_historial_precios_screen.dart';
 import '../screens/auth/solicitar_reset_screen.dart';
 import '../screens/auth/confirmar_reset_screen.dart';
+import '../screens/perfil/mi_historial_screen.dart';
+import '../screens/perfil/mis_notificaciones_screen.dart';
+import '../screens/admin/admin_historial_clientes_screen.dart';
 
 class _SplashScreen extends StatelessWidget {
   const _SplashScreen();
@@ -90,6 +93,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       const privateRoutes = [
         '/mis-compras',
         '/perfil',
+        '/mi-historial',
+        '/mis-notificaciones',
         '/admin',
         '/carrito',
         '/compra-exitosa',
@@ -162,6 +167,14 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/perfil',
         builder: (_, __) => const PerfilScreen(),
+      ),
+      GoRoute(
+        path: '/mi-historial',
+        builder: (_, __) => const MiHistorialScreen(),
+      ),
+      GoRoute(
+        path: '/mis-notificaciones',
+        builder: (_, __) => const MisNotificacionesScreen(),
       ),
 
       // ── Inventario (admin / bodeguero) ─────
@@ -328,6 +341,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/admin/historial-precios',
         builder: (_, __) => const AdminHistorialPreciosScreen(),
+      ),
+
+      GoRoute(
+        path: '/admin/historial-clientes',
+        builder: (_, __) => const AdminHistorialClientesScreen(),
       ),
 
       // ── Financiamientos ─────
