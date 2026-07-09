@@ -12,8 +12,11 @@ import '../../providers/sucursal_provider.dart';
 
 class InventarioFormScreen extends ConsumerStatefulWidget {
   final Inventario? inventario;
+  // Preselecciona la moto en modo creación (ej. al agregar stock en una
+  // sucursal nueva desde el desglose de una moto). Se ignora en modo edición.
+  final int? motoPreseleccionada;
 
-  const InventarioFormScreen({super.key, this.inventario});
+  const InventarioFormScreen({super.key, this.inventario, this.motoPreseleccionada});
 
   @override
   ConsumerState<InventarioFormScreen> createState() => _InventarioFormScreenState();
@@ -36,7 +39,7 @@ class _InventarioFormScreenState extends ConsumerState<InventarioFormScreen> {
     final inventario = widget.inventario;
     _cantidadController = TextEditingController(text: inventario?.cantidad.toString() ?? '');
     _ubicacionBodegaController = TextEditingController(text: inventario?.ubicacionBodega ?? '');
-    _motoSeleccionada = inventario?.moto;
+    _motoSeleccionada = inventario?.moto ?? widget.motoPreseleccionada;
     _sucursalSeleccionada = inventario?.sucursal;
   }
 

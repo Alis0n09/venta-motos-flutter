@@ -30,7 +30,6 @@ class _MotoFormScreenState extends ConsumerState<MotoFormScreen> {
   int? _marcaSeleccionada;
   int? _categoriaSeleccionada;
   String _estado = 'disponible';
-  String? _sucursalSeleccionada; // decorativo por ahora
 
   bool get _esEdicion => widget.moto != null;
 
@@ -386,26 +385,6 @@ class _MotoFormScreenState extends ConsumerState<MotoFormScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
-
-                Row(
-                  children: [
-                    Text('SUCURSAL', style: AppTextStyles.caption),
-                    const SizedBox(width: 4),
-                    Tooltip(
-                      message: 'Próximamente: asignar sucursal desde aquí',
-                      child: Icon(Icons.info_outline, size: 14, color: AppColors.textSecondary),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                DropdownButtonFormField<String>(
-                  initialValue: _sucursalSeleccionada,
-                  hint: const Text('Próximamente'),
-                  items: const [],
-                  onChanged: null,
-                ),
-
                 const SizedBox(height: 16),
 
                 Text('ESTADO', style: AppTextStyles.caption),

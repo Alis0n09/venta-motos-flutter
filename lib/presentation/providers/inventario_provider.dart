@@ -3,6 +3,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/error/api_exception.dart';
 import '../../data/remote/api/inventario_remote_datasource.dart';
+import '../../domain/model/inventario.dart';
 import '../../domain/model/inventario_state.dart';
 
 class InventarioNotifier extends StateNotifier<InventarioState> {
@@ -81,4 +82,13 @@ class InventarioNotifier extends StateNotifier<InventarioState> {
 final inventarioProvider =
     StateNotifierProvider.autoDispose<InventarioNotifier, InventarioState>((ref) {
   return InventarioNotifier(ref.watch(inventarioDatasourceProvider));
+});
+
+/// Desglose de los registros reales de Inventario de una Moto puntual, uno
+/// por sucursal. Usado en el modo "Todas las sucursales" de InventarioListScreen
+/// para mostrar el detalle detrás del stock agregado.
+final desgloseInventarioProvider =
+    FutureProvider.autoDispose.family<List<Inventario>, int>((ref, motoId) async {
+  final datasource = ref.watch(inventarioDatasourceProvider);
+  return datasource.getInventarios(moto: motoId);
 });

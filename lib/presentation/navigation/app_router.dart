@@ -184,7 +184,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/inventario/nuevo',
-        builder: (_, __) => const InventarioFormScreen(),
+        builder: (_, state) => InventarioFormScreen(motoPreseleccionada: state.extra as int?),
       ),
       GoRoute(
         path: '/inventario/:id/editar',

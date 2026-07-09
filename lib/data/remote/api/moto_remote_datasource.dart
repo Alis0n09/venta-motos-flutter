@@ -25,7 +25,7 @@ class MotoRemoteDatasourceImpl implements MotoRemoteDatasource {
   Future<List<Moto>> getMotos({int? marcaId, String? search}) async {
     try {
       final res = await _dio.get('/motos/', queryParameters: {
-        'page_size': 50,
+        'page_size': 200,
         if (marcaId != null) 'marca': marcaId,
         if (search != null && search.isNotEmpty) 'search': search,
       });

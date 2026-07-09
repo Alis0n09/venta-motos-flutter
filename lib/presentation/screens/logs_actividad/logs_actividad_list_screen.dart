@@ -1,7 +1,5 @@
 // lib/presentation/screens/logs_actividad/logs_actividad_list_screen.dart
 
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../domain/model/log_actividad.dart';
@@ -12,7 +10,9 @@ import '../../providers/logs_actividad_provider.dart';
 
 const _entidades = ['Moto', 'Venta', 'Cliente', 'Financiamiento', 'Vendedor', 'Inventario'];
 const _acciones = ['CREATE', 'UPDATE', 'DELETE'];
-const _jsonEncoder = JsonEncoder.withIndent('  ');
+
+// Campos técnicos que no aportan nada al mostrarlos en el diff "antes → después".
+const _camposIgnorados = {'id'};
 
 class LogsActividadListScreen extends ConsumerStatefulWidget {
   const LogsActividadListScreen({super.key});
@@ -63,11 +63,59 @@ class _LogsActividadListScreenState extends ConsumerState<LogsActividadListScree
     ref.read(logsActividadProvider.notifier).filtrarPorRangoFechas(rango.start, rango.end);
   }
 
+  Widget _buildFiltroChip(LogsActividadState estado) {
+    final activo = estado.fechaDesde != null && estado.fechaHasta != null;
+    final label = activo
+        ? '${_formatearFecha(estado.fechaDesde!.toIso8601String()).split(' ').first} - '
+            '${_formatearFecha(estado.fechaHasta!.toIso8601String()).split(' ').first}'
+        : 'Rango de fechas';
+
+    return InkWell(
+      onTap: () => _elegirRangoFechas(estado),
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: activo ? AppColors.accentLight : AppColors.surface,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: activo ? AppColors.accent : AppColors.border),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.date_range_outlined,
+              size: 18,
+              color: activo ? AppColors.accent : AppColors.textSecondary,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: activo ? AppColors.accent : AppColors.textPrimary,
+              ),
+            ),
+            if (activo) ...[
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: () => ref.read(logsActividadProvider.notifier).filtrarPorRangoFechas(null, null),
+                child: const Icon(Icons.close, size: 16, color: AppColors.accent),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final logsState = ref.watch(logsActividadProvider);
 
     return Scaffold(
+      backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('Logs de actividad')),
       body: RefreshIndicator(
         onRefresh: () => ref.read(logsActividadProvider.notifier).loadLogs(),
@@ -142,29 +190,7 @@ class _LogsActividadListScreenState extends ConsumerState<LogsActividadListScree
             ),
             const SizedBox(height: 12),
 
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _elegirRangoFechas(logsState),
-                    icon: const Icon(Icons.date_range_outlined),
-                    label: Text(
-                      (logsState.fechaDesde != null && logsState.fechaHasta != null)
-                          ? '${_formatearFecha(logsState.fechaDesde!.toIso8601String()).split(' ').first} - '
-                              '${_formatearFecha(logsState.fechaHasta!.toIso8601String()).split(' ').first}'
-                          : 'Rango de fechas',
-                    ),
-                  ),
-                ),
-                if (logsState.fechaDesde != null || logsState.fechaHasta != null)
-                  IconButton(
-                    tooltip: 'Quitar filtro de fechas',
-                    icon: const Icon(Icons.close),
-                    onPressed: () =>
-                        ref.read(logsActividadProvider.notifier).filtrarPorRangoFechas(null, null),
-                  ),
-              ],
-            ),
+            Align(alignment: Alignment.centerLeft, child: _buildFiltroChip(logsState)),
             const SizedBox(height: 20),
 
             Text('${logsState.logs.length} resultados', style: AppTextStyles.bodySecondary),
@@ -208,78 +234,237 @@ class _LogTile extends StatelessWidget {
 
   const _LogTile({required this.log, required this.color, required this.fechaFormateada});
 
+  IconData get _icono {
+    switch (log.accion) {
+      case 'CREATE':
+        return Icons.add_circle_outline;
+      case 'DELETE':
+        return Icons.remove_circle_outline;
+      case 'UPDATE':
+      default:
+        return Icons.edit_outlined;
+    }
+  }
+
+  String get _titulo {
+    switch (log.accion) {
+      case 'CREATE':
+        return '${log.entidad} creado';
+      case 'UPDATE':
+        return '${log.entidad} actualizado';
+      case 'DELETE':
+        return '${log.entidad} eliminado';
+      default:
+        return log.entidad;
+    }
+  }
+
+  String get _subtitulo {
+    if (log.usuario != null) {
+      return '$fechaFormateada · Usuario #${log.usuario}';
+    }
+    return fechaFormateada;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final tieneDatos = log.datosAntes != null || log.datosDespues != null;
+    final diferencias = _calcularDiferencias(log.datosAntes, log.datosDespues);
 
     return Card(
       margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
       child: ExpansionTile(
-        enabled: tieneDatos,
+        enabled: diferencias.isNotEmpty,
+        leading: CircleAvatar(
+          backgroundColor: color.withValues(alpha: 0.15),
+          child: Icon(_icono, color: color),
+        ),
         title: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(8),
-              ),
+            Expanded(
               child: Text(
-                log.accion,
-                style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 12),
+                _titulo,
+                style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700),
               ),
             ),
             const SizedBox(width: 8),
-            Expanded(child: Text(log.entidad, style: AppTextStyles.body)),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                log.accion,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11,
+                  letterSpacing: 0.4,
+                ),
+              ),
+            ),
           ],
         ),
-        subtitle: Text(fechaFormateada, style: AppTextStyles.bodySecondary),
-        children: tieneDatos
-            ? [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (log.datosAntes != null) ...[
-                        const Text('DATOS ANTES', style: AppTextStyles.caption),
-                        const SizedBox(height: 6),
-                        _JsonBlock(datos: log.datosAntes!),
-                        const SizedBox(height: 12),
-                      ],
-                      if (log.datosDespues != null) ...[
-                        const Text('DATOS DESPUÉS', style: AppTextStyles.caption),
-                        const SizedBox(height: 6),
-                        _JsonBlock(datos: log.datosDespues!),
-                      ],
-                    ],
-                  ),
-                ),
-              ]
-            : [],
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(_subtitulo, style: AppTextStyles.bodySecondary),
+        ),
+        childrenPadding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+        expandedCrossAxisAlignment: CrossAxisAlignment.start,
+        children: diferencias.isEmpty
+            ? const []
+            : [
+                const Divider(height: 1),
+                const SizedBox(height: 10),
+                for (final diff in diferencias) _CampoDiffRow(diff: diff),
+              ],
       ),
     );
   }
 }
 
-class _JsonBlock extends StatelessWidget {
-  final Map<String, dynamic> datos;
+/// Un campo cuyo valor cambió (o apareció/desapareció) entre datosAntes y
+/// datosDespues, ya formateado para mostrarse en la UI.
+class _CampoDiff {
+  final String campo;
+  final String? antes;
+  final String? despues;
+  final bool soloAntes;
+  final bool soloDespues;
 
-  const _JsonBlock({required this.datos});
+  const _CampoDiff({
+    required this.campo,
+    this.antes,
+    this.despues,
+    this.soloAntes = false,
+    this.soloDespues = false,
+  });
+}
+
+List<_CampoDiff> _calcularDiferencias(Map<String, dynamic>? antes, Map<String, dynamic>? despues) {
+  final campos = <String>{...?despues?.keys, ...?antes?.keys}..removeAll(_camposIgnorados);
+
+  final diferencias = <_CampoDiff>[];
+  for (final campo in campos) {
+    final tieneAntes = antes?.containsKey(campo) ?? false;
+    final tieneDespues = despues?.containsKey(campo) ?? false;
+    final valorAntes = antes?[campo];
+    final valorDespues = despues?[campo];
+
+    if (tieneAntes && tieneDespues) {
+      if (_valoresIguales(valorAntes, valorDespues)) continue;
+      diferencias.add(_CampoDiff(
+        campo: campo,
+        antes: _formatearValor(valorAntes),
+        despues: _formatearValor(valorDespues),
+      ));
+    } else if (tieneDespues) {
+      diferencias.add(_CampoDiff(campo: campo, despues: _formatearValor(valorDespues), soloDespues: true));
+    } else if (tieneAntes) {
+      diferencias.add(_CampoDiff(campo: campo, antes: _formatearValor(valorAntes), soloAntes: true));
+    }
+  }
+  return diferencias;
+}
+
+bool _valoresIguales(dynamic a, dynamic b) {
+  if (a is Map && b is Map) {
+    if (a.length != b.length) return false;
+    for (final clave in a.keys) {
+      if (!b.containsKey(clave) || !_valoresIguales(a[clave], b[clave])) return false;
+    }
+    return true;
+  }
+  if (a is List && b is List) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (!_valoresIguales(a[i], b[i])) return false;
+    }
+    return true;
+  }
+  return a == b;
+}
+
+String _formatearValor(dynamic valor) {
+  if (valor == null) return 'Ninguno';
+  if (valor is String) return valor.isEmpty ? '(vacío)' : valor;
+  if (valor is num || valor is bool) return valor.toString();
+  if (valor is List) {
+    if (valor.isEmpty) return 'Ninguno';
+    if (valor.every((e) => e is String || e is num || e is bool)) {
+      return valor.map((e) => e.toString()).join(', ');
+    }
+    return '${valor.length} elemento${valor.length == 1 ? '' : 's'}';
+  }
+  if (valor is Map) {
+    for (final clave in ['nombre', 'descripcion', 'detalle']) {
+      final legible = valor[clave];
+      if (legible is String && legible.isNotEmpty) return legible;
+    }
+    return '${valor.length} campo${valor.length == 1 ? '' : 's'}';
+  }
+  return valor.toString();
+}
+
+class _CampoDiffRow extends StatelessWidget {
+  final _CampoDiff diff;
+
+  const _CampoDiffRow({required this.diff});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.border.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(8),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 120,
+            child: Text(
+              diff.campo.replaceAll('_', ' ').toUpperCase(),
+              style: AppTextStyles.caption,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(child: _buildValor()),
+        ],
       ),
-      child: SelectableText(
-        _jsonEncoder.convert(datos),
-        style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
-      ),
+    );
+  }
+
+  Widget _buildValor() {
+    if (diff.soloAntes) {
+      return Text(
+        diff.antes ?? '',
+        style: AppTextStyles.body.copyWith(
+          color: AppColors.textSecondary,
+          decoration: TextDecoration.lineThrough,
+        ),
+      );
+    }
+    if (diff.soloDespues) {
+      return Text(diff.despues ?? '', style: AppTextStyles.body);
+    }
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(
+          diff.antes ?? '',
+          style: AppTextStyles.body.copyWith(
+            color: AppColors.textSecondary,
+            decoration: TextDecoration.lineThrough,
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 6),
+          child: Icon(Icons.arrow_forward, size: 14, color: AppColors.textSecondary),
+        ),
+        Text(
+          diff.despues ?? '',
+          style: AppTextStyles.body.copyWith(color: AppColors.accent, fontWeight: FontWeight.w700),
+        ),
+      ],
     );
   }
 }
