@@ -19,6 +19,14 @@ class MisNotificacionesScreen extends ConsumerWidget {
         return Icons.notifications_active_outlined;
       case 'pago':
         return Icons.payments_outlined;
+      case 'compra':
+        return Icons.shopping_bag_outlined;
+      case 'mantenimiento':
+        return Icons.build_outlined;
+      case 'financiamiento':
+        return Icons.account_balance_outlined;
+      case 'garantia':
+        return Icons.verified_outlined;
       default:
         return Icons.notifications_none;
     }
